@@ -70,3 +70,8 @@
 ## Botão WhatsApp
 - [x] Adicionar botão WhatsApp na página Minhas Reservas
 - [x] Adicionar botão WhatsApp na página do Carrinho (finalização de compra)
+
+
+## Melhorias nos Filtros de Pesquisa
+- [x] Adicionar filtro de bi-semanas para ver outdoors disponíveis no período
+- [x] Melhorar filtro de iluminação com caixas de seleção (com, sem, ambos)

@@ -3,11 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 import { trpc } from "@/lib/trpc";
-import { MapPin, Lightbulb, Search, ShoppingCart, Heart, ArrowLeft } from "lucide-react";
+import { MapPin, Lightbulb, Search, ShoppingCart, Heart, ArrowLeft, Calendar } from "lucide-react";
 import { useState, useMemo } from "react";
 import { Link, useLocation } from "wouter";
 
@@ -15,14 +16,45 @@ export default function Outdoors() {
   const { user, isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterLighting, setFilterLighting] = useState<boolean | null>(null);
+  const [filterWithLighting, setFilterWithLighting] = useState(true);
+  const [filterWithoutLighting, setFilterWithoutLighting] = useState(true);
+  const [selectedBiweek, setSelectedBiweek] = useState<string>("");
 
+  const currentYear = new Date().getFullYear();
   const { data: outdoors, isLoading } = trpc.outdoor.list.useQuery({ activeOnly: true });
   const { data: favorites } = trpc.favorite.list.useQuery(undefined, { enabled: isAuthenticated });
+  const { data: biweeks } = trpc.biweek.getByYear.useQuery({ year: currentYear });
+  const { data: reservations } = trpc.reservation.list.useQuery();
   
   const favoriteIds = useMemo(() => {
     return new Set(favorites?.map(f => f.outdoorId) || []);
   }, [favorites]);
+
+  // Get reserved/pending biweeks per outdoor
+  const reservedBiweeksByOutdoor = useMemo(() => {
+    if (!reservations) return new Map<number, Set<number>>();
+    
+    const map = new Map<number, Set<number>>();
+    reservations.forEach(reservation => {
+      if (reservation.status === 'approved' || reservation.status === 'pending') {
+        const biweekIds = JSON.parse(reservation.biweekIds) as number[];
+        biweekIds.forEach(biweekId => {
+          if (!map.has(reservation.outdoorId)) {
+            map.set(reservation.outdoorId, new Set());
+          }
+          map.get(reservation.outdoorId)!.add(biweekId);
+        });
+      }
+    });
+    return map;
+  }, [reservations]);
+
+  // Filter biweeks that are in the future
+  const availableBiweeks = useMemo(() => {
+    if (!biweeks) return [];
+    const today = new Date();
+    return biweeks.filter(b => new Date(b.endDate) >= today);
+  }, [biweeks]);
 
   const filteredOutdoors = useMemo(() => {
     if (!outdoors) return [];
@@ -38,13 +70,28 @@ export default function Outdoors() {
       }
       
       // Lighting filter
-      if (filterLighting !== null && outdoor.hasLighting !== filterLighting) {
+      if (!filterWithLighting && !filterWithoutLighting) {
+        return false; // No filter selected, show nothing
+      }
+      if (!filterWithLighting && outdoor.hasLighting) {
         return false;
+      }
+      if (!filterWithoutLighting && !outdoor.hasLighting) {
+        return false;
+      }
+      
+      // Biweek availability filter
+      if (selectedBiweek && selectedBiweek !== "all") {
+        const biweekId = parseInt(selectedBiweek);
+        const reservedBiweeks = reservedBiweeksByOutdoor.get(outdoor.id);
+        if (reservedBiweeks && reservedBiweeks.has(biweekId)) {
+          return false; // This outdoor is reserved/pending for the selected biweek
+        }
       }
       
       return true;
     });
-  }, [outdoors, searchQuery, filterLighting]);
+  }, [outdoors, searchQuery, filterWithLighting, filterWithoutLighting, selectedBiweek, reservedBiweeksByOutdoor]);
 
   const handleReserve = (outdoorId: number) => {
     if (!isAuthenticated) {
@@ -52,6 +99,11 @@ export default function Outdoors() {
       return;
     }
     setLocation(`/reservar/${outdoorId}`);
+  };
+
+  const formatBiweekDate = (dateValue: Date | string) => {
+    const date = typeof dateValue === 'string' ? new Date(dateValue) : dateValue;
+    return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
   };
 
   return (
@@ -109,8 +161,9 @@ export default function Outdoors() {
 
           {/* Filters */}
           <div className="bg-white rounded-xl border border-border p-4 mb-8">
-            <div className="flex flex-wrap gap-4 items-end">
-              <div className="flex-1 min-w-[200px]">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Search */}
+              <div>
                 <Label htmlFor="search" className="mb-2 block">Buscar</Label>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -123,23 +176,66 @@ export default function Outdoors() {
                   />
                 </div>
               </div>
+
+              {/* Biweek Filter */}
+              <div>
+                <Label htmlFor="biweek" className="mb-2 block flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  Bi-semana
+                </Label>
+                <Select value={selectedBiweek} onValueChange={setSelectedBiweek}>
+                  <SelectTrigger id="biweek">
+                    <SelectValue placeholder="Selecione o período" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas as bi-semanas</SelectItem>
+                    {availableBiweeks.map((biweek) => (
+                      <SelectItem key={biweek.id} value={biweek.id.toString()}>
+                        {String(biweek.biweekNumber).padStart(2, '0')} - {formatBiweekDate(biweek.startDate)} a {formatBiweekDate(biweek.endDate)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
               
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <Switch
-                    id="lighting-yes"
-                    checked={filterLighting === true}
-                    onCheckedChange={(checked) => setFilterLighting(checked ? true : null)}
-                  />
-                  <Label htmlFor="lighting-yes" className="cursor-pointer">Com iluminação</Label>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Switch
-                    id="lighting-no"
-                    checked={filterLighting === false}
-                    onCheckedChange={(checked) => setFilterLighting(checked ? false : null)}
-                  />
-                  <Label htmlFor="lighting-no" className="cursor-pointer">Sem iluminação</Label>
+              {/* Lighting Filter */}
+              <div className="lg:col-span-2">
+                <Label className="mb-2 block flex items-center gap-2">
+                  <Lightbulb className="h-4 w-4" />
+                  Iluminação
+                </Label>
+                <div className="flex flex-wrap gap-4 mt-1">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="lighting-with"
+                      checked={filterWithLighting}
+                      onCheckedChange={(checked) => setFilterWithLighting(checked === true)}
+                    />
+                    <Label htmlFor="lighting-with" className="cursor-pointer font-normal">
+                      Com iluminação
+                    </Label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="lighting-without"
+                      checked={filterWithoutLighting}
+                      onCheckedChange={(checked) => setFilterWithoutLighting(checked === true)}
+                    />
+                    <Label htmlFor="lighting-without" className="cursor-pointer font-normal">
+                      Sem iluminação
+                    </Label>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-xs h-7"
+                    onClick={() => {
+                      setFilterWithLighting(true);
+                      setFilterWithoutLighting(true);
+                    }}
+                  >
+                    Limpar filtros
+                  </Button>
                 </div>
               </div>
             </div>
@@ -150,7 +246,14 @@ export default function Outdoors() {
             {isLoading ? (
               "Carregando..."
             ) : (
-              `${filteredOutdoors.length} outdoor${filteredOutdoors.length !== 1 ? 's' : ''} encontrado${filteredOutdoors.length !== 1 ? 's' : ''}`
+              <>
+                {filteredOutdoors.length} outdoor{filteredOutdoors.length !== 1 ? 's' : ''} encontrado{filteredOutdoors.length !== 1 ? 's' : ''}
+                {selectedBiweek && selectedBiweek !== "all" && (
+                  <span className="ml-1 text-primary font-medium">
+                    (disponíveis na bi-semana selecionada)
+                  </span>
+                )}
+              </>
             )}
           </div>
 

@@ -257,6 +257,11 @@ export const appRouter = router({
       return await db.getReservationsByUser(ctx.user.id);
     }),
     
+    // Public route to get all reservations for availability check
+    list: publicProcedure.query(async () => {
+      return await db.getAllReservations();
+    }),
+    
     getById: protectedProcedure
       .input(z.object({ id: z.number() }))
       .query(async ({ input }) => {
