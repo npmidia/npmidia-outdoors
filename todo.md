@@ -79,3 +79,5 @@
 
 ## Melhorias na Interface
 - [x] Criar botão "Limpar Filtros" que restaura todos os filtros para o estado inicial
+
+- [x] Substituir logo na página inicial pela imagem dos outdoors

@@ -79,11 +79,11 @@ export default function Home() {
               </div>
             </div>
             <div className="relative">
-              <div className="aspect-video bg-gradient-to-br from-primary/20 to-primary/5 rounded-2xl flex items-center justify-center border border-primary/20">
+              <div className="aspect-video rounded-2xl overflow-hidden shadow-2xl border border-border">
                 <img 
-                  src="/logo-npmidia.png" 
-                  alt="NPMIDIA Outdoors" 
-                  className="w-2/3 opacity-80"
+                  src="/hero-outdoors.png" 
+                  alt="Outdoors NPMIDIA - Anuncie Aqui" 
+                  className="w-full h-full object-cover"
                 />
               </div>
             </div>
