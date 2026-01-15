@@ -6,6 +6,8 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import * as db from "./db";
 import { notifyOwner } from "./_core/notification";
+import { storagePut } from "./storage";
+import { nanoid } from "nanoid";
 
 // Admin procedure - only allows admin users
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -25,6 +27,23 @@ export const appRouter = router({
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
       return { success: true } as const;
     }),
+  }),
+
+  // ============ UPLOAD ROUTES ============
+  upload: router({
+    image: adminProcedure
+      .input(z.object({
+        base64: z.string(),
+        filename: z.string(),
+        contentType: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        const buffer = Buffer.from(input.base64, 'base64');
+        const ext = input.filename.split('.').pop() || 'jpg';
+        const key = `outdoors/${nanoid()}.${ext}`;
+        const { url } = await storagePut(key, buffer, input.contentType);
+        return { url };
+      }),
   }),
 
   // ============ OUTDOOR ROUTES ============

@@ -21,8 +21,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { trpc } from "@/lib/trpc";
-import { Plus, Pencil, Trash2, Lightbulb, MapPin } from "lucide-react";
-import { useState } from "react";
+import { Plus, Pencil, Trash2, Lightbulb, MapPin, Upload, X, Loader2, Image } from "lucide-react";
+import { useState, useRef } from "react";
 import { toast } from "sonner";
 
 interface OutdoorFormData {
@@ -42,6 +42,8 @@ interface OutdoorFormData {
   activationDate: string;
   isActive: boolean;
   photoUrl: string;
+  photoUrl2: string;
+  photoUrl3: string;
 }
 
 const emptyForm: OutdoorFormData = {
@@ -61,15 +63,29 @@ const emptyForm: OutdoorFormData = {
   activationDate: "",
   isActive: true,
   photoUrl: "",
+  photoUrl2: "",
+  photoUrl3: "",
 };
 
 export default function AdminOutdoors() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [formData, setFormData] = useState<OutdoorFormData>(emptyForm);
+  const [uploadingPhoto, setUploadingPhoto] = useState<1 | 2 | 3 | null>(null);
+  
+  const fileInputRef1 = useRef<HTMLInputElement>(null);
+  const fileInputRef2 = useRef<HTMLInputElement>(null);
+  const fileInputRef3 = useRef<HTMLInputElement>(null);
 
   const { data: outdoors, isLoading } = trpc.outdoor.list.useQuery({ activeOnly: false });
   const utils = trpc.useUtils();
+
+  const uploadImage = trpc.upload.image.useMutation({
+    onError: (error) => {
+      toast.error(error.message || "Erro ao fazer upload da imagem");
+      setUploadingPhoto(null);
+    },
+  });
 
   const createOutdoor = trpc.outdoor.create.useMutation({
     onSuccess: () => {
@@ -106,6 +122,52 @@ export default function AdminOutdoors() {
     },
   });
 
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, photoNumber: 1 | 2 | 3) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error("Por favor, selecione uma imagem válida");
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("A imagem deve ter no máximo 5MB");
+      return;
+    }
+
+    setUploadingPhoto(photoNumber);
+
+    try {
+      // Convert to base64
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const base64 = (reader.result as string).split(',')[1];
+        
+        const result = await uploadImage.mutateAsync({
+          base64,
+          filename: file.name,
+          contentType: file.type,
+        });
+
+        const fieldName = photoNumber === 1 ? 'photoUrl' : photoNumber === 2 ? 'photoUrl2' : 'photoUrl3';
+        setFormData(prev => ({ ...prev, [fieldName]: result.url }));
+        setUploadingPhoto(null);
+        toast.success("Imagem enviada com sucesso!");
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      setUploadingPhoto(null);
+    }
+  };
+
+  const removePhoto = (photoNumber: 1 | 2 | 3) => {
+    const fieldName = photoNumber === 1 ? 'photoUrl' : photoNumber === 2 ? 'photoUrl2' : 'photoUrl3';
+    setFormData(prev => ({ ...prev, [fieldName]: '' }));
+  };
+
   const handleEdit = (outdoor: any) => {
     setEditingId(outdoor.id);
     setFormData({
@@ -125,6 +187,8 @@ export default function AdminOutdoors() {
       activationDate: outdoor.activationDate ? new Date(outdoor.activationDate).toISOString().split('T')[0] : "",
       isActive: outdoor.isActive ?? true,
       photoUrl: outdoor.photoUrl || "",
+      photoUrl2: outdoor.photoUrl2 || "",
+      photoUrl3: outdoor.photoUrl3 || "",
     });
     setIsDialogOpen(true);
   };
@@ -133,14 +197,21 @@ export default function AdminOutdoors() {
     e.preventDefault();
     
     if (!formData.code || !formData.city || !formData.pricePerBiweek) {
-      toast.error("Preencha os campos obrigatórios");
+      toast.error("Preencha os campos obrigatórios: Código, Cidade e Valor");
       return;
     }
 
+    const dataToSend = {
+      ...formData,
+      photoUrl: formData.photoUrl || undefined,
+      photoUrl2: formData.photoUrl2 || undefined,
+      photoUrl3: formData.photoUrl3 || undefined,
+    };
+
     if (editingId) {
-      updateOutdoor.mutate({ id: editingId, ...formData });
+      updateOutdoor.mutate({ id: editingId, ...dataToSend });
     } else {
-      createOutdoor.mutate(formData);
+      createOutdoor.mutate(dataToSend);
     }
   };
 
@@ -156,6 +227,62 @@ export default function AdminOutdoors() {
       currency: 'BRL',
     }).format(parseFloat(price));
   };
+
+  const PhotoUploadBox = ({ 
+    photoNumber, 
+    photoUrl, 
+    fileInputRef 
+  }: { 
+    photoNumber: 1 | 2 | 3; 
+    photoUrl: string; 
+    fileInputRef: React.RefObject<HTMLInputElement>;
+  }) => (
+    <div className="space-y-2">
+      <Label>Foto {photoNumber} {photoNumber === 1 && "(Principal)"}</Label>
+      <input
+        type="file"
+        ref={fileInputRef}
+        className="hidden"
+        accept="image/*"
+        onChange={(e) => handleFileChange(e, photoNumber)}
+      />
+      {photoUrl ? (
+        <div className="relative group">
+          <img 
+            src={photoUrl} 
+            alt={`Foto ${photoNumber}`} 
+            className="w-full h-32 object-cover rounded-lg border"
+          />
+          <button
+            type="button"
+            onClick={() => removePhoto(photoNumber)}
+            className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={uploadingPhoto === photoNumber}
+          className="w-full h-32 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center gap-2 hover:border-primary hover:bg-primary/5 transition-colors disabled:opacity-50"
+        >
+          {uploadingPhoto === photoNumber ? (
+            <>
+              <Loader2 className="h-8 w-8 text-primary animate-spin" />
+              <span className="text-sm text-muted-foreground">Enviando...</span>
+            </>
+          ) : (
+            <>
+              <Upload className="h-8 w-8 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">Clique para enviar</span>
+            </>
+          )}
+        </button>
+      )}
+    </div>
+  );
 
   return (
     <AdminLayout title="Gerenciar Outdoors" subtitle="Cadastre e gerencie os outdoors disponíveis">
@@ -175,148 +302,190 @@ export default function AdminOutdoors() {
                 Novo Outdoor
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>
                   {editingId ? "Editar Outdoor" : "Novo Outdoor"}
                 </DialogTitle>
               </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="code">Código *</Label>
-                    <Input
-                      id="code"
-                      value={formData.code}
-                      onChange={(e) => setFormData({ ...formData, code: e.target.value })}
-                      placeholder="Ex: OUT-001"
-                      required
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Fotos */}
+                <div className="space-y-3">
+                  <h3 className="font-semibold flex items-center gap-2">
+                    <Image className="h-4 w-4" />
+                    Fotos do Outdoor
+                  </h3>
+                  <div className="grid grid-cols-3 gap-4">
+                    <PhotoUploadBox 
+                      photoNumber={1} 
+                      photoUrl={formData.photoUrl} 
+                      fileInputRef={fileInputRef1 as React.RefObject<HTMLInputElement>}
                     />
-                  </div>
-                  <div>
-                    <Label htmlFor="pricePerBiweek">Valor por Bi-semana (R$) *</Label>
-                    <Input
-                      id="pricePerBiweek"
-                      type="number"
-                      step="0.01"
-                      value={formData.pricePerBiweek}
-                      onChange={(e) => setFormData({ ...formData, pricePerBiweek: e.target.value })}
-                      placeholder="Ex: 1500.00"
-                      required
+                    <PhotoUploadBox 
+                      photoNumber={2} 
+                      photoUrl={formData.photoUrl2} 
+                      fileInputRef={fileInputRef2 as React.RefObject<HTMLInputElement>}
                     />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="street">Rua</Label>
-                    <Input
-                      id="street"
-                      value={formData.street}
-                      onChange={(e) => setFormData({ ...formData, street: e.target.value })}
-                      placeholder="Nome da rua"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="number">Número</Label>
-                    <Input
-                      id="number"
-                      value={formData.number}
-                      onChange={(e) => setFormData({ ...formData, number: e.target.value })}
-                      placeholder="Ex: 123"
+                    <PhotoUploadBox 
+                      photoNumber={3} 
+                      photoUrl={formData.photoUrl3} 
+                      fileInputRef={fileInputRef3 as React.RefObject<HTMLInputElement>}
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="neighborhood">Bairro</Label>
-                    <Input
-                      id="neighborhood"
-                      value={formData.neighborhood}
-                      onChange={(e) => setFormData({ ...formData, neighborhood: e.target.value })}
-                      placeholder="Nome do bairro"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="city">Cidade *</Label>
-                    <Input
-                      id="city"
-                      value={formData.city}
-                      onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                      placeholder="Nome da cidade"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="state">Estado</Label>
-                    <Input
-                      id="state"
-                      value={formData.state}
-                      onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                      placeholder="Ex: SP"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="zipCode">CEP</Label>
-                    <Input
-                      id="zipCode"
-                      value={formData.zipCode}
-                      onChange={(e) => setFormData({ ...formData, zipCode: e.target.value })}
-                      placeholder="Ex: 01234-567"
-                    />
+                {/* Informações Básicas */}
+                <div className="space-y-3">
+                  <h3 className="font-semibold">Informações Básicas</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="code">Código *</Label>
+                      <Input
+                        id="code"
+                        value={formData.code}
+                        onChange={(e) => setFormData({ ...formData, code: e.target.value })}
+                        placeholder="Ex: OUT-001"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="pricePerBiweek">Valor por Bi-semana (R$) *</Label>
+                      <Input
+                        id="pricePerBiweek"
+                        type="number"
+                        step="0.01"
+                        value={formData.pricePerBiweek}
+                        onChange={(e) => setFormData({ ...formData, pricePerBiweek: e.target.value })}
+                        placeholder="Ex: 1500.00"
+                        required
+                      />
+                    </div>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="latitude">Latitude</Label>
-                    <Input
-                      id="latitude"
-                      value={formData.latitude}
-                      onChange={(e) => setFormData({ ...formData, latitude: e.target.value })}
-                      placeholder="Ex: -23.550520"
-                    />
+                {/* Endereço */}
+                <div className="space-y-3">
+                  <h3 className="font-semibold">Endereço</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="street">Rua</Label>
+                      <Input
+                        id="street"
+                        value={formData.street}
+                        onChange={(e) => setFormData({ ...formData, street: e.target.value })}
+                        placeholder="Nome da rua"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="number">Número</Label>
+                      <Input
+                        id="number"
+                        value={formData.number}
+                        onChange={(e) => setFormData({ ...formData, number: e.target.value })}
+                        placeholder="Ex: 123"
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <Label htmlFor="longitude">Longitude</Label>
-                    <Input
-                      id="longitude"
-                      value={formData.longitude}
-                      onChange={(e) => setFormData({ ...formData, longitude: e.target.value })}
-                      placeholder="Ex: -46.633308"
-                    />
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="neighborhood">Bairro</Label>
+                      <Input
+                        id="neighborhood"
+                        value={formData.neighborhood}
+                        onChange={(e) => setFormData({ ...formData, neighborhood: e.target.value })}
+                        placeholder="Nome do bairro"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="city">Cidade *</Label>
+                      <Input
+                        id="city"
+                        value={formData.city}
+                        onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                        placeholder="Nome da cidade"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="state">Estado</Label>
+                      <Input
+                        id="state"
+                        value={formData.state}
+                        onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                        placeholder="Ex: SP"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="zipCode">CEP</Label>
+                      <Input
+                        id="zipCode"
+                        value={formData.zipCode}
+                        onChange={(e) => setFormData({ ...formData, zipCode: e.target.value })}
+                        placeholder="Ex: 01234-567"
+                      />
+                    </div>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="width">Largura (m)</Label>
-                    <Input
-                      id="width"
-                      type="number"
-                      step="0.01"
-                      value={formData.width}
-                      onChange={(e) => setFormData({ ...formData, width: e.target.value })}
-                      placeholder="Ex: 9.00"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="height">Altura (m)</Label>
-                    <Input
-                      id="height"
-                      type="number"
-                      step="0.01"
-                      value={formData.height}
-                      onChange={(e) => setFormData({ ...formData, height: e.target.value })}
-                      placeholder="Ex: 3.00"
-                    />
+                {/* Coordenadas */}
+                <div className="space-y-3">
+                  <h3 className="font-semibold">Coordenadas (para o mapa)</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="latitude">Latitude</Label>
+                      <Input
+                        id="latitude"
+                        value={formData.latitude}
+                        onChange={(e) => setFormData({ ...formData, latitude: e.target.value })}
+                        placeholder="Ex: -23.550520"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="longitude">Longitude</Label>
+                      <Input
+                        id="longitude"
+                        value={formData.longitude}
+                        onChange={(e) => setFormData({ ...formData, longitude: e.target.value })}
+                        placeholder="Ex: -46.633308"
+                      />
+                    </div>
                   </div>
                 </div>
 
+                {/* Dimensões */}
+                <div className="space-y-3">
+                  <h3 className="font-semibold">Dimensões</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="width">Largura (m)</Label>
+                      <Input
+                        id="width"
+                        type="number"
+                        step="0.01"
+                        value={formData.width}
+                        onChange={(e) => setFormData({ ...formData, width: e.target.value })}
+                        placeholder="Ex: 9.00"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="height">Altura (m)</Label>
+                      <Input
+                        id="height"
+                        type="number"
+                        step="0.01"
+                        value={formData.height}
+                        onChange={(e) => setFormData({ ...formData, height: e.target.value })}
+                        placeholder="Ex: 3.00"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Data de Ativação */}
                 <div>
                   <Label htmlFor="activationDate">Data de Ativação</Label>
                   <Input
@@ -327,16 +496,7 @@ export default function AdminOutdoors() {
                   />
                 </div>
 
-                <div>
-                  <Label htmlFor="photoUrl">URL da Foto</Label>
-                  <Input
-                    id="photoUrl"
-                    value={formData.photoUrl}
-                    onChange={(e) => setFormData({ ...formData, photoUrl: e.target.value })}
-                    placeholder="https://exemplo.com/foto.jpg"
-                  />
-                </div>
-
+                {/* Switches */}
                 <div className="flex items-center gap-6">
                   <div className="flex items-center gap-2">
                     <Switch
@@ -356,12 +516,20 @@ export default function AdminOutdoors() {
                   </div>
                 </div>
 
+                {/* Botões */}
                 <div className="flex justify-end gap-2 pt-4">
                   <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                     Cancelar
                   </Button>
-                  <Button type="submit" disabled={createOutdoor.isPending || updateOutdoor.isPending}>
-                    {editingId ? "Salvar Alterações" : "Criar Outdoor"}
+                  <Button type="submit" disabled={createOutdoor.isPending || updateOutdoor.isPending || uploadingPhoto !== null}>
+                    {createOutdoor.isPending || updateOutdoor.isPending ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Salvando...
+                      </>
+                    ) : (
+                      editingId ? "Salvar Alterações" : "Criar Outdoor"
+                    )}
                   </Button>
                 </div>
               </form>
@@ -370,11 +538,15 @@ export default function AdminOutdoors() {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="text-center py-8 text-muted-foreground">Carregando...</div>
+            <div className="text-center py-8 text-muted-foreground">
+              <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2" />
+              Carregando...
+            </div>
           ) : outdoors && outdoors.length > 0 ? (
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>Foto</TableHead>
                   <TableHead>Código</TableHead>
                   <TableHead>Localização</TableHead>
                   <TableHead>Tamanho</TableHead>
@@ -386,6 +558,19 @@ export default function AdminOutdoors() {
               <TableBody>
                 {outdoors.map((outdoor) => (
                   <TableRow key={outdoor.id}>
+                    <TableCell>
+                      {outdoor.photoUrl ? (
+                        <img 
+                          src={outdoor.photoUrl} 
+                          alt={outdoor.code} 
+                          className="w-16 h-12 object-cover rounded"
+                        />
+                      ) : (
+                        <div className="w-16 h-12 bg-gray-100 rounded flex items-center justify-center">
+                          <Image className="h-6 w-6 text-gray-400" />
+                        </div>
+                      )}
+                    </TableCell>
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-2">
                         {outdoor.code}
@@ -442,6 +627,7 @@ export default function AdminOutdoors() {
             <div className="text-center py-8">
               <MapPin className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <p className="text-muted-foreground">Nenhum outdoor cadastrado</p>
+              <p className="text-sm text-muted-foreground mt-1">Clique em "Novo Outdoor" para começar</p>
             </div>
           )}
         </CardContent>

@@ -103,7 +103,7 @@ export default function Perfil() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Link href="/">
-                <img src="/logo.png" alt="NPMIDIA" className="h-8" />
+                <img src="/logo-npmidia.png" alt="NPMIDIA" className="h-8" />
               </Link>
             </div>
             <nav className="flex items-center gap-6">

@@ -43,3 +43,9 @@
 - [x] Criar rota tRPC para atualizar perfil
 - [x] Criar página de perfil do usuário
 - [x] Adicionar link de perfil no menu de navegação
+
+
+## Correções e Melhorias
+- [x] Corrigir erro no cadastro de outdoor
+- [x] Implementar upload de fotos para outdoors
+- [x] Trocar logomarca pela nova versão (logoNPMIDIA-2023.png)
