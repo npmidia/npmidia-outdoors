@@ -178,36 +178,58 @@ export default function Outdoors() {
                 </div>
               </div>
 
-              {/* Biweek Filter - Multiple Selection */}
+              {/* Biweek Filter - Visual Grid like Reservar page */}
               <div className="lg:col-span-2">
                 <Label className="mb-2 block flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
-                  Bi-semanas {selectedBiweeks.length > 0 && <span className="text-primary">({selectedBiweeks.length} selecionada{selectedBiweeks.length > 1 ? 's' : ''})</span>}
+                  Filtrar por Bi-semana {selectedBiweeks.length > 0 && <span className="text-primary font-semibold">({selectedBiweeks.length} selecionada{selectedBiweeks.length > 1 ? 's' : ''})</span>}
                 </Label>
-                <div className="max-h-40 overflow-y-auto border border-border rounded-md p-2 bg-background">
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                <div className="flex flex-wrap gap-2 mb-2 text-xs">
+                  <div className="flex items-center gap-1">
+                    <div className="w-3 h-3 rounded bg-green-500" />
+                    <span>Disponível</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-3 h-3 rounded bg-primary" />
+                    <span>Selecionada</span>
+                  </div>
+                </div>
+                <div className="border border-border rounded-lg p-3 bg-background">
+                  <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-6 gap-2">
                     {availableBiweeks.map((biweek) => {
                       const isSelected = selectedBiweeks.includes(biweek.id);
                       return (
-                        <div key={biweek.id} className="flex items-center gap-2">
-                          <Checkbox
-                            id={`biweek-${biweek.id}`}
-                            checked={isSelected}
-                            onCheckedChange={(checked) => {
-                              if (checked) {
-                                setSelectedBiweeks([...selectedBiweeks, biweek.id]);
-                              } else {
-                                setSelectedBiweeks(selectedBiweeks.filter(id => id !== biweek.id));
-                              }
-                            }}
-                          />
-                          <Label htmlFor={`biweek-${biweek.id}`} className="cursor-pointer font-normal text-sm">
-                            {String(biweek.biweekNumber).padStart(2, '0')} ({formatBiweekDate(biweek.startDate)} - {formatBiweekDate(biweek.endDate)})
-                          </Label>
-                        </div>
+                        <button
+                          key={biweek.id}
+                          onClick={() => {
+                            if (isSelected) {
+                              setSelectedBiweeks(selectedBiweeks.filter(id => id !== biweek.id));
+                            } else {
+                              setSelectedBiweeks([...selectedBiweeks, biweek.id]);
+                            }
+                          }}
+                          className={`
+                            p-2 rounded-lg text-center transition-all text-white
+                            ${isSelected 
+                              ? "bg-primary ring-2 ring-offset-2 ring-primary" 
+                              : "bg-green-500 hover:bg-green-600"
+                            }
+                          `}
+                        >
+                          <div className="font-bold text-sm">{String(biweek.biweekNumber).padStart(2, '0')}</div>
+                          <div className="text-xs opacity-80">
+                            {formatBiweekDate(biweek.startDate)}
+                          </div>
+                        </button>
                       );
                     })}
                   </div>
+                  {availableBiweeks.length === 0 && (
+                    <div className="text-center py-4 text-muted-foreground text-sm">
+                      <Calendar className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                      <p>Nenhuma bi-semana disponível</p>
+                    </div>
+                  )}
                 </div>
               </div>
               

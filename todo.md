@@ -83,3 +83,6 @@
 - [x] Substituir logo na página inicial pela imagem dos outdoors
 
 - [x] Implementar seleção múltipla de bi-semanas no filtro de pesquisa
+
+- [x] Corrigir filtro de bi-semanas para funcionar sem login
+- [x] Melhorar visual do filtro de bi-semanas (parecido com tela de reserva)
