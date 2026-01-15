@@ -58,3 +58,6 @@
 - [x] Criar página de Cadastro com campos: nome, e-mail, telefone, empresa, senha
 - [x] Remover login pelo Manus OAuth
 - [x] Atualizar navegação para usar novo sistema de autenticação
+
+## Correções de Bugs
+- [x] Corrigir erro quando usuário erra a senha no login
