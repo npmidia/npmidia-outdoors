@@ -81,3 +81,5 @@
 - [x] Criar botão "Limpar Filtros" que restaura todos os filtros para o estado inicial
 
 - [x] Substituir logo na página inicial pela imagem dos outdoors
+
+- [x] Implementar seleção múltipla de bi-semanas no filtro de pesquisa
