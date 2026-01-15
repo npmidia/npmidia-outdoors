@@ -12,6 +12,7 @@ import Reservar from "./pages/Reservar";
 import Carrinho from "./pages/Carrinho";
 import MinhasReservas from "./pages/MinhasReservas";
 import Favoritos from "./pages/Favoritos";
+import Perfil from "./pages/Perfil";
 
 // Admin Pages
 import AdminDashboard from "./pages/admin/Dashboard";
@@ -32,6 +33,7 @@ function Router() {
       <Route path="/carrinho" component={Carrinho} />
       <Route path="/minhas-reservas" component={MinhasReservas} />
       <Route path="/favoritos" component={Favoritos} />
+      <Route path="/perfil" component={Perfil} />
       
       {/* Admin Routes */}
       <Route path="/admin" component={AdminDashboard} />

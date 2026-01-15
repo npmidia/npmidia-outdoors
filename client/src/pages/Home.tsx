@@ -1,7 +1,7 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { getLoginUrl } from "@/const";
-import { MapPin, Lightbulb, Calendar, ShoppingCart, ArrowRight } from "lucide-react";
+import { MapPin, Lightbulb, Calendar, ShoppingCart, ArrowRight, User } from "lucide-react";
 import { Link } from "wouter";
 
 export default function Home() {
@@ -27,6 +27,11 @@ export default function Home() {
                 <Link href="/carrinho">
                   <Button variant="ghost" size="icon">
                     <ShoppingCart className="h-5 w-5" />
+                  </Button>
+                </Link>
+                <Link href="/perfil">
+                  <Button variant="ghost" size="icon">
+                    <User className="h-5 w-5" />
                   </Button>
                 </Link>
                 {user?.role === "admin" && (

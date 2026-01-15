@@ -339,6 +339,27 @@ export const appRouter = router({
       }),
   }),
 
+  // ============ PROFILE (USER) ============
+  profile: router({
+    get: protectedProcedure.query(async ({ ctx }) => {
+      return await db.getUserById(ctx.user.id);
+    }),
+    
+    update: protectedProcedure
+      .input(z.object({
+        name: z.string().optional(),
+        email: z.string().email().optional(),
+        phone: z.string().optional(),
+        cpfCnpj: z.string().optional(),
+        company: z.string().optional(),
+        address: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        await db.updateUserProfile(ctx.user.id, input);
+        return { success: true };
+      }),
+  }),
+
   // ============ ADMIN STATS ============
   admin: router({
     stats: adminProcedure.query(async () => {

@@ -36,3 +36,10 @@
 ## Autenticação
 - [x] Sistema de roles (admin/user)
 - [x] Proteção de rotas por perfil
+
+
+## Perfil de Usuário
+- [x] Adicionar campos de contato no schema (telefone, empresa, CNPJ/CPF)
+- [x] Criar rota tRPC para atualizar perfil
+- [x] Criar página de perfil do usuário
+- [x] Adicionar link de perfil no menu de navegação

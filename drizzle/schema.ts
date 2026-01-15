@@ -10,6 +10,8 @@ export const users = mysqlTable("users", {
   email: varchar("email", { length: 320 }),
   phone: varchar("phone", { length: 20 }),
   cpfCnpj: varchar("cpfCnpj", { length: 20 }),
+  company: varchar("company", { length: 255 }),
+  address: text("address"),
   loginMethod: varchar("loginMethod", { length: 64 }),
   role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),

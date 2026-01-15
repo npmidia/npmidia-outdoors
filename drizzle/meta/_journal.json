@@ -15,6 +15,13 @@
       "when": 1768446029518,
       "tag": "0001_unique_steve_rogers",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1768446986312,
+      "tag": "0002_giant_moondragon",
+      "breakpoints": true
     }
   ]
 }

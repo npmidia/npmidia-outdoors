@@ -116,6 +116,19 @@ export async function updateUserRole(id: number, role: "user" | "admin") {
   await db.update(users).set({ role }).where(eq(users.id, id));
 }
 
+export async function updateUserProfile(id: number, data: {
+  name?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  cpfCnpj?: string | null;
+  company?: string | null;
+  address?: string | null;
+}) {
+  const db = await getDb();
+  if (!db) return;
+  await db.update(users).set(data).where(eq(users.id, id));
+}
+
 // ============ OUTDOOR FUNCTIONS ============
 
 export async function getAllOutdoors(activeOnly = true) {
