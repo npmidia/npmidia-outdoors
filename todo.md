@@ -86,3 +86,11 @@
 
 - [x] Corrigir filtro de bi-semanas para funcionar sem login
 - [x] Melhorar visual do filtro de bi-semanas (parecido com tela de reserva)
+
+
+## Melhorias no Dashboard Administrativo
+- [x] Faturamento mensal (valor total das reservas aprovadas)
+- [x] Reservas pendentes (quantidade aguardando aprovação)
+- [x] Clientes ativos (quantidade de clientes com reservas)
+- [x] Alerta/destaque para reservas pendentes há mais de 24 horas
+- [x] Notificações de reservas em tempo real (atualização automática a cada 30s)

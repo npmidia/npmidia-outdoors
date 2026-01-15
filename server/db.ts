@@ -1,4 +1,4 @@
-import { eq, and, inArray, sql, desc, asc } from "drizzle-orm";
+import { eq, and, sql, inArray, desc, gte, lte, asc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { 
   InsertUser, users, 
@@ -448,21 +448,89 @@ export async function clearCart(userId: number) {
 
 export async function getAdminStats() {
   const db = await getDb();
-  if (!db) return { pendingReservations: 0, activeOutdoors: 0, totalUsers: 0 };
+  if (!db) return { 
+    pendingReservations: 0, 
+    activeOutdoors: 0, 
+    totalUsers: 0,
+    monthlyRevenue: 0,
+    activeClients: 0,
+    pendingOver24h: [],
+    recentReservations: []
+  };
   
+  // Reservas pendentes
   const pendingResult = await db.select({ count: sql<number>`count(*)` })
     .from(reservations)
     .where(eq(reservations.status, "pending"));
   
+  // Outdoors ativos
   const outdoorsResult = await db.select({ count: sql<number>`count(*)` })
     .from(outdoors)
     .where(eq(outdoors.isActive, true));
   
+  // Total de usuários
   const usersResult = await db.select({ count: sql<number>`count(*)` }).from(users);
+  
+  // Faturamento mensal (reservas aprovadas no mês atual)
+  const now = new Date();
+  const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const monthlyRevenueResult = await db.select({ total: sql<number>`COALESCE(SUM(totalValue), 0)` })
+    .from(reservations)
+    .where(
+      and(
+        eq(reservations.status, "approved"),
+        gte(reservations.createdAt, firstDayOfMonth)
+      )
+    );
+  
+  // Clientes ativos (usuários com pelo menos uma reserva)
+  const activeClientsResult = await db.select({ count: sql<number>`COUNT(DISTINCT userId)` })
+    .from(reservations);
+  
+  // Reservas pendentes há mais de 24 horas
+  const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  const pendingOver24hResult = await db.select({
+    id: reservations.id,
+    totalValue: reservations.totalValue,
+    createdAt: reservations.createdAt,
+    userId: reservations.userId,
+    userName: users.name,
+    userEmail: users.email,
+    userPhone: users.phone,
+  })
+    .from(reservations)
+    .leftJoin(users, eq(reservations.userId, users.id))
+    .where(
+      and(
+        eq(reservations.status, "pending"),
+        lte(reservations.createdAt, twentyFourHoursAgo)
+      )
+    )
+    .orderBy(reservations.createdAt);
+  
+  // Reservas recentes (últimas 10)
+  const recentReservationsResult = await db.select({
+    id: reservations.id,
+    totalValue: reservations.totalValue,
+    status: reservations.status,
+    createdAt: reservations.createdAt,
+    userId: reservations.userId,
+    userName: users.name,
+    userEmail: users.email,
+    userPhone: users.phone,
+  })
+    .from(reservations)
+    .leftJoin(users, eq(reservations.userId, users.id))
+    .orderBy(desc(reservations.createdAt))
+    .limit(10);
   
   return {
     pendingReservations: Number(pendingResult[0]?.count || 0),
     activeOutdoors: Number(outdoorsResult[0]?.count || 0),
     totalUsers: Number(usersResult[0]?.count || 0),
+    monthlyRevenue: Number(monthlyRevenueResult[0]?.total || 0),
+    activeClients: Number(activeClientsResult[0]?.count || 0),
+    pendingOver24h: pendingOver24hResult,
+    recentReservations: recentReservationsResult,
   };
 }
