@@ -18,7 +18,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { trpc } from "@/lib/trpc";
-import { Calendar, CheckCircle, XCircle, Clock, AlertCircle, User } from "lucide-react";
+import { Calendar, CheckCircle, XCircle, Clock, AlertCircle, User, Phone, Mail } from "lucide-react";
 import { useState, useMemo } from "react";
 import { toast } from "sonner";
 
@@ -145,6 +145,8 @@ export default function AdminReservas() {
                 <TableRow>
                   <TableHead>ID</TableHead>
                   <TableHead>Cliente</TableHead>
+                  <TableHead>E-mail</TableHead>
+                  <TableHead>Telefone</TableHead>
                   <TableHead>Outdoor</TableHead>
                   <TableHead>Serviços</TableHead>
                   <TableHead>Valor</TableHead>
@@ -160,10 +162,19 @@ export default function AdminReservas() {
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <User className="h-4 w-4 text-muted-foreground" />
-                        <div>
-                          <p className="font-medium">{reservation.user?.name || "Usuário"}</p>
-                          <p className="text-xs text-muted-foreground">{reservation.user?.email}</p>
-                        </div>
+                        <span className="font-medium">{reservation.user?.name || "Usuário"}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                        <Mail className="h-3 w-3" />
+                        <span>{reservation.user?.email || "-"}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                        <Phone className="h-3 w-3" />
+                        <span>{reservation.user?.phone || "-"}</span>
                       </div>
                     </TableCell>
                     <TableCell>

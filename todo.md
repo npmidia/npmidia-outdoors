@@ -61,3 +61,7 @@
 
 ## Correções de Bugs
 - [x] Corrigir erro quando usuário erra a senha no login
+
+## Melhorias no Painel Admin
+- [x] Exibir e-mail e telefone na listagem de usuários
+- [x] Exibir e-mail e telefone do cliente na listagem de reservas

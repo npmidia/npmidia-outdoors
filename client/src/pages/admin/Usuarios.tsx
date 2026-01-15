@@ -62,8 +62,9 @@ export default function AdminUsuarios() {
                 <TableRow>
                   <TableHead>ID</TableHead>
                   <TableHead>Nome</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Método de Login</TableHead>
+                  <TableHead>E-mail</TableHead>
+                  <TableHead>Telefone</TableHead>
+                  <TableHead>Empresa</TableHead>
                   <TableHead>Cadastro</TableHead>
                   <TableHead>Último Acesso</TableHead>
                   <TableHead>Perfil</TableHead>
@@ -84,9 +85,8 @@ export default function AdminUsuarios() {
                       </div>
                     </TableCell>
                     <TableCell className="text-muted-foreground">{user.email || "-"}</TableCell>
-                    <TableCell>
-                      <Badge variant="secondary">{user.loginMethod || "manus"}</Badge>
-                    </TableCell>
+                    <TableCell className="text-muted-foreground">{user.phone || "-"}</TableCell>
+                    <TableCell className="text-muted-foreground">{user.company || "-"}</TableCell>
                     <TableCell className="text-sm text-muted-foreground">
                       {formatDate(user.createdAt)}
                     </TableCell>
