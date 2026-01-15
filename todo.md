@@ -65,3 +65,8 @@
 ## Melhorias no Painel Admin
 - [x] Exibir e-mail e telefone na listagem de usuários
 - [x] Exibir e-mail e telefone do cliente na listagem de reservas
+
+
+## Botão WhatsApp
+- [x] Adicionar botão WhatsApp na página Minhas Reservas
+- [x] Adicionar botão WhatsApp na página do Carrinho (finalização de compra)

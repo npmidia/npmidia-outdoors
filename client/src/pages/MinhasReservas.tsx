@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
-import { Calendar, MapPin, ArrowLeft, Clock, CheckCircle, XCircle, AlertCircle, ShoppingCart, Heart } from "lucide-react";
+import { Calendar, MapPin, ArrowLeft, Clock, CheckCircle, XCircle, AlertCircle, ShoppingCart, Heart, MessageCircle } from "lucide-react";
 import { useEffect, useMemo } from "react";
 import { Link } from "wouter";
 
@@ -148,6 +148,34 @@ export default function MinhasReservas() {
             <Calendar className="h-8 w-8" />
             Minhas Reservas
           </h1>
+
+          {/* WhatsApp CTA */}
+          <Card className="mb-8 bg-gradient-to-r from-green-50 to-green-100 border-green-200">
+            <CardContent className="p-6">
+              <div className="flex flex-col sm:flex-row items-center gap-4">
+                <div className="flex-shrink-0">
+                  <div className="w-14 h-14 bg-green-500 rounded-full flex items-center justify-center">
+                    <MessageCircle className="h-7 w-7 text-white" />
+                  </div>
+                </div>
+                <div className="flex-1 text-center sm:text-left">
+                  <h3 className="font-bold text-lg text-green-800">Garanta seu espaço</h3>
+                  <p className="text-green-700">Chame no WhatsApp para aprovar a reserva e concluir o pagamento do seu outdoor.</p>
+                </div>
+                <a
+                  href="https://wa.me/551730420203?text=Olá!%20Gostaria%20de%20aprovar%20minha%20reserva%20de%20outdoor."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-shrink-0"
+                >
+                  <Button className="bg-green-500 hover:bg-green-600 text-white gap-2">
+                    <MessageCircle className="h-5 w-5" />
+                    Chamar no WhatsApp
+                  </Button>
+                </a>
+              </div>
+            </CardContent>
+          </Card>
 
           {reservationsWithDetails.length === 0 ? (
             <div className="text-center py-16">

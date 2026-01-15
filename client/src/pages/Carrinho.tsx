@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
-import { ShoppingCart, Trash2, ArrowLeft, MapPin, Check, ShoppingBag } from "lucide-react";
+import { ShoppingCart, Trash2, ArrowLeft, MapPin, Check, ShoppingBag, MessageCircle } from "lucide-react";
 import { useEffect, useMemo } from "react";
 import { Link, useLocation } from "wouter";
 import { toast } from "sonner";
@@ -278,6 +278,32 @@ export default function Carrinho() {
                       Ao confirmar, seu pedido será enviado para aprovação. 
                       Você receberá uma notificação quando for aprovado.
                     </p>
+                  </CardContent>
+                </Card>
+
+                {/* WhatsApp CTA */}
+                <Card className="mt-4 bg-gradient-to-r from-green-50 to-green-100 border-green-200">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                        <MessageCircle className="h-5 w-5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-green-800">Garanta seu espaço</h3>
+                        <p className="text-sm text-green-700">Chame no WhatsApp para aprovar a reserva e concluir o pagamento do seu outdoor.</p>
+                      </div>
+                    </div>
+                    <a
+                      href="https://wa.me/551730420203?text=Olá!%20Gostaria%20de%20aprovar%20minha%20reserva%20de%20outdoor."
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block"
+                    >
+                      <Button className="w-full bg-green-500 hover:bg-green-600 text-white gap-2">
+                        <MessageCircle className="h-5 w-5" />
+                        Chamar no WhatsApp
+                      </Button>
+                    </a>
                   </CardContent>
                 </Card>
               </div>
