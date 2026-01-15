@@ -20,6 +20,8 @@ import Cadastro from "./pages/Cadastro";
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminOutdoors from "./pages/admin/Outdoors";
 import AdminReservas from "./pages/admin/Reservas";
+import AdminReservationDetails from "./pages/admin/ReservationDetails";
+import AdminClientDetails from "./pages/admin/ClientDetails";
 import AdminUsuarios from "./pages/admin/Usuarios";
 import AdminBisemanas from "./pages/admin/Bisemanas";
 
@@ -43,6 +45,8 @@ function Router() {
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin/outdoors" component={AdminOutdoors} />
       <Route path="/admin/reservas" component={AdminReservas} />
+      <Route path="/admin/reservas/:id" component={AdminReservationDetails} />
+      <Route path="/admin/clientes/:id" component={AdminClientDetails} />
       <Route path="/admin/usuarios" component={AdminUsuarios} />
       <Route path="/admin/bisemanas" component={AdminBisemanas} />
       

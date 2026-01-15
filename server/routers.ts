@@ -464,6 +464,109 @@ export const appRouter = router({
     stats: adminProcedure.query(async () => {
       return await db.getAdminStats();
     }),
+    
+    // Reservation details with full info
+    getReservationDetails: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getReservationDetails(input.id);
+      }),
+    
+    // Update reservation production fields
+    updateReservationProduction: adminProcedure
+      .input(z.object({
+        id: z.number(),
+        saleNumber: z.string().optional().nullable(),
+        artStatus: z.enum(["waiting", "received", "approved", "in_production"]).optional(),
+        adminNotes: z.string().optional().nullable(),
+        clientNotes: z.string().optional().nullable(),
+        scheduledInstallDate: z.string().optional().nullable(),
+      }))
+      .mutation(async ({ input }) => {
+        const { id, ...data } = input;
+        await db.updateReservationProduction(id, data);
+        return { success: true };
+      }),
+    
+    // Approve reservation with sale number (required)
+    approveWithSaleNumber: adminProcedure
+      .input(z.object({
+        id: z.number(),
+        saleNumber: z.string().min(1, "Número da venda é obrigatório"),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        await db.approveReservationWithSaleNumber(input.id, input.saleNumber, ctx.user.id);
+        return { success: true };
+      }),
+    
+    // Get client details with history
+    getClientDetails: adminProcedure
+      .input(z.object({ userId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getClientDetails(input.userId);
+      }),
+    
+    // Get reservations with filters
+    getReservationsFiltered: adminProcedure
+      .input(z.object({
+        userId: z.number().optional(),
+        status: z.string().optional(),
+        search: z.string().optional(),
+      }))
+      .query(async ({ input }) => {
+        return await db.getReservationsWithFilters(input);
+      }),
+  }),
+  
+  // ============ RESERVATION ARTS ============
+  reservationArt: router({
+    // Get arts for a reservation
+    list: protectedProcedure
+      .input(z.object({ reservationId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getReservationArts(input.reservationId);
+      }),
+    
+    // Upload art (client or admin)
+    upload: protectedProcedure
+      .input(z.object({
+        reservationId: z.number(),
+        base64: z.string(),
+        fileName: z.string(),
+        contentType: z.string(),
+        fileSize: z.number(),
+        notes: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        // Upload file to S3
+        const buffer = Buffer.from(input.base64, 'base64');
+        const ext = input.fileName.split('.').pop() || 'pdf';
+        const fileKey = `arts/${input.reservationId}/${nanoid()}.${ext}`;
+        const { url } = await storagePut(fileKey, buffer, input.contentType);
+        
+        // Save to database
+        const id = await db.addReservationArt({
+          reservationId: input.reservationId,
+          fileUrl: url,
+          fileKey,
+          fileName: input.fileName,
+          fileSize: input.fileSize,
+          mimeType: input.contentType,
+          uploadedBy: ctx.user.id,
+          uploadedByRole: ctx.user.role === 'admin' ? 'admin' : 'client',
+          notes: input.notes,
+        });
+        
+        return { id, url };
+      }),
+    
+    // Delete art (admin only)
+    delete: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        await db.deleteReservationArt(input.id);
+        return { success: true };
+      }),
   }),
 });
 

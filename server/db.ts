@@ -6,6 +6,7 @@ import {
   biweeks, InsertBiweek, Biweek,
   reservations, InsertReservation, Reservation,
   reservationBiweeks, InsertReservationBiweek,
+  reservationArts, InsertReservationArt, ReservationArt,
   favorites, InsertFavorite,
   cartItems, InsertCartItem
 } from "../drizzle/schema";
@@ -533,4 +534,275 @@ export async function getAdminStats() {
     pendingOver24h: pendingOver24hResult,
     recentReservations: recentReservationsResult,
   };
+}
+
+
+// ============ RESERVATION MANAGEMENT FUNCTIONS ============
+
+export async function getReservationDetails(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  // Get reservation with user and outdoor info
+  const result = await db.select({
+    id: reservations.id,
+    userId: reservations.userId,
+    outdoorId: reservations.outdoorId,
+    status: reservations.status,
+    includePaperGlue: reservations.includePaperGlue,
+    includeCanvasInstall: reservations.includeCanvasInstall,
+    totalValue: reservations.totalValue,
+    saleNumber: reservations.saleNumber,
+    artStatus: reservations.artStatus,
+    adminNotes: reservations.adminNotes,
+    clientNotes: reservations.clientNotes,
+    scheduledInstallDate: reservations.scheduledInstallDate,
+    approvedAt: reservations.approvedAt,
+    approvedBy: reservations.approvedBy,
+    createdAt: reservations.createdAt,
+    updatedAt: reservations.updatedAt,
+    userName: users.name,
+    userEmail: users.email,
+    userPhone: users.phone,
+    userCompany: users.company,
+    outdoorCode: outdoors.code,
+    outdoorStreet: outdoors.street,
+    outdoorNumber: outdoors.number,
+    outdoorNeighborhood: outdoors.neighborhood,
+    outdoorCity: outdoors.city,
+    outdoorState: outdoors.state,
+    outdoorPhotoUrl: outdoors.photoUrl,
+    outdoorWidth: outdoors.width,
+    outdoorHeight: outdoors.height,
+    outdoorPricePerBiweek: outdoors.pricePerBiweek,
+  })
+    .from(reservations)
+    .leftJoin(users, eq(reservations.userId, users.id))
+    .leftJoin(outdoors, eq(reservations.outdoorId, outdoors.id))
+    .where(eq(reservations.id, id))
+    .limit(1);
+  
+  if (result.length === 0) return null;
+  
+  // Get biweeks for this reservation
+  const biweekLinks = await db.select({
+    biweekId: reservationBiweeks.biweekId,
+    biweekNumber: biweeks.biweekNumber,
+    startDate: biweeks.startDate,
+    endDate: biweeks.endDate,
+    year: biweeks.year,
+  })
+    .from(reservationBiweeks)
+    .leftJoin(biweeks, eq(reservationBiweeks.biweekId, biweeks.id))
+    .where(eq(reservationBiweeks.reservationId, id));
+  
+  // Get arts for this reservation
+  const arts = await db.select()
+    .from(reservationArts)
+    .where(eq(reservationArts.reservationId, id))
+    .orderBy(desc(reservationArts.createdAt));
+  
+  return {
+    ...result[0],
+    biweeks: biweekLinks,
+    arts,
+  };
+}
+
+export async function updateReservationProduction(id: number, data: {
+  saleNumber?: string | null;
+  artStatus?: "waiting" | "received" | "approved" | "in_production";
+  adminNotes?: string | null;
+  clientNotes?: string | null;
+  scheduledInstallDate?: string | null;
+}) {
+  const db = await getDb();
+  if (!db) return;
+  
+  const updateData: Record<string, unknown> = {};
+  if (data.saleNumber !== undefined) updateData.saleNumber = data.saleNumber;
+  if (data.artStatus !== undefined) updateData.artStatus = data.artStatus;
+  if (data.adminNotes !== undefined) updateData.adminNotes = data.adminNotes;
+  if (data.clientNotes !== undefined) updateData.clientNotes = data.clientNotes;
+  if (data.scheduledInstallDate !== undefined) {
+    updateData.scheduledInstallDate = data.scheduledInstallDate ? new Date(data.scheduledInstallDate) : null;
+  }
+  
+  await db.update(reservations).set(updateData).where(eq(reservations.id, id));
+}
+
+export async function approveReservationWithSaleNumber(id: number, saleNumber: string, adminId: number) {
+  const db = await getDb();
+  if (!db) return;
+  
+  await db.update(reservations).set({ 
+    status: "approved",
+    saleNumber,
+    approvedAt: new Date(),
+    approvedBy: adminId,
+  }).where(eq(reservations.id, id));
+  
+  // Update biweek statuses to blocked
+  await db.update(reservationBiweeks)
+    .set({ status: "blocked" })
+    .where(eq(reservationBiweeks.reservationId, id));
+}
+
+// ============ RESERVATION ARTS FUNCTIONS ============
+
+export async function getReservationArts(reservationId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select()
+    .from(reservationArts)
+    .where(eq(reservationArts.reservationId, reservationId))
+    .orderBy(desc(reservationArts.createdAt));
+}
+
+export async function addReservationArt(art: InsertReservationArt) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Get current max version for this reservation
+  const existing = await db.select({ maxVersion: sql<number>`MAX(version)` })
+    .from(reservationArts)
+    .where(eq(reservationArts.reservationId, art.reservationId));
+  
+  const nextVersion = (existing[0]?.maxVersion || 0) + 1;
+  
+  // Set all previous arts as inactive
+  await db.update(reservationArts)
+    .set({ isActive: false })
+    .where(eq(reservationArts.reservationId, art.reservationId));
+  
+  // Insert new art
+  const result = await db.insert(reservationArts).values({
+    ...art,
+    version: nextVersion,
+    isActive: true,
+  });
+  
+  // Update reservation art status to received
+  await db.update(reservations)
+    .set({ artStatus: "received" })
+    .where(eq(reservations.id, art.reservationId));
+  
+  return result[0].insertId;
+}
+
+export async function deleteReservationArt(id: number) {
+  const db = await getDb();
+  if (!db) return;
+  await db.delete(reservationArts).where(eq(reservationArts.id, id));
+}
+
+// ============ CLIENT HISTORY FUNCTIONS ============
+
+export async function getClientDetails(userId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  // Get user info
+  const userResult = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+  if (userResult.length === 0) return null;
+  
+  // Get all reservations for this user with outdoor info
+  const userReservations = await db.select({
+    id: reservations.id,
+    outdoorId: reservations.outdoorId,
+    status: reservations.status,
+    includePaperGlue: reservations.includePaperGlue,
+    includeCanvasInstall: reservations.includeCanvasInstall,
+    totalValue: reservations.totalValue,
+    saleNumber: reservations.saleNumber,
+    artStatus: reservations.artStatus,
+    createdAt: reservations.createdAt,
+    outdoorCode: outdoors.code,
+    outdoorCity: outdoors.city,
+  })
+    .from(reservations)
+    .leftJoin(outdoors, eq(reservations.outdoorId, outdoors.id))
+    .where(eq(reservations.userId, userId))
+    .orderBy(desc(reservations.createdAt));
+  
+  // Calculate stats
+  const totalReservations = userReservations.length;
+  const approvedReservations = userReservations.filter(r => r.status === "approved").length;
+  const pendingReservations = userReservations.filter(r => r.status === "pending").length;
+  const totalSpent = userReservations
+    .filter(r => r.status === "approved")
+    .reduce((sum, r) => sum + Number(r.totalValue || 0), 0);
+  
+  return {
+    user: userResult[0],
+    reservations: userReservations,
+    stats: {
+      totalReservations,
+      approvedReservations,
+      pendingReservations,
+      totalSpent,
+    },
+  };
+}
+
+export async function getReservationsWithFilters(filters: {
+  userId?: number;
+  status?: string;
+  search?: string;
+}) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  let query = db.select({
+    id: reservations.id,
+    userId: reservations.userId,
+    outdoorId: reservations.outdoorId,
+    status: reservations.status,
+    includePaperGlue: reservations.includePaperGlue,
+    includeCanvasInstall: reservations.includeCanvasInstall,
+    totalValue: reservations.totalValue,
+    saleNumber: reservations.saleNumber,
+    artStatus: reservations.artStatus,
+    createdAt: reservations.createdAt,
+    userName: users.name,
+    userEmail: users.email,
+    userPhone: users.phone,
+    userCompany: users.company,
+    outdoorCode: outdoors.code,
+    outdoorCity: outdoors.city,
+  })
+    .from(reservations)
+    .leftJoin(users, eq(reservations.userId, users.id))
+    .leftJoin(outdoors, eq(reservations.outdoorId, outdoors.id))
+    .orderBy(desc(reservations.createdAt));
+  
+  const conditions = [];
+  
+  if (filters.userId) {
+    conditions.push(eq(reservations.userId, filters.userId));
+  }
+  
+  if (filters.status && filters.status !== "all") {
+    conditions.push(eq(reservations.status, filters.status as "pending" | "approved" | "denied" | "cancelled"));
+  }
+  
+  if (conditions.length > 0) {
+    query = query.where(and(...conditions)) as typeof query;
+  }
+  
+  const results = await query;
+  
+  // If search filter, apply it in memory (for name/email/code search)
+  if (filters.search) {
+    const searchLower = filters.search.toLowerCase();
+    return results.filter(r => 
+      r.userName?.toLowerCase().includes(searchLower) ||
+      r.userEmail?.toLowerCase().includes(searchLower) ||
+      r.outdoorCode?.toLowerCase().includes(searchLower) ||
+      r.saleNumber?.toLowerCase().includes(searchLower)
+    );
+  }
+  
+  return results;
 }

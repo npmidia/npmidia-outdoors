@@ -18,12 +18,17 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { trpc } from "@/lib/trpc";
-import { Calendar, CheckCircle, XCircle, Clock, AlertCircle, User, Phone, Mail } from "lucide-react";
+import { Calendar, CheckCircle, XCircle, Clock, AlertCircle, User, Phone, Mail, Eye, Search } from "lucide-react";
 import { useState, useMemo } from "react";
+import { useLocation } from "wouter";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 
 export default function AdminReservas() {
+  const [, navigate] = useLocation();
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [clientFilter, setClientFilter] = useState<number | null>(null);
 
   const { data: reservations, isLoading } = trpc.reservation.listAll.useQuery();
   const { data: outdoors } = trpc.outdoor.list.useQuery({ activeOnly: false });
@@ -57,9 +62,41 @@ export default function AdminReservas() {
   }, [reservations, outdoors, users]);
 
   const filteredReservations = useMemo(() => {
-    if (statusFilter === "all") return reservationsWithDetails;
-    return reservationsWithDetails.filter(r => r.status === statusFilter);
-  }, [reservationsWithDetails, statusFilter]);
+    let filtered = reservationsWithDetails;
+    
+    // Filter by status
+    if (statusFilter !== "all") {
+      filtered = filtered.filter(r => r.status === statusFilter);
+    }
+    
+    // Filter by client
+    if (clientFilter) {
+      filtered = filtered.filter(r => r.userId === clientFilter);
+    }
+    
+    // Filter by search query
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(r => 
+        r.user?.name?.toLowerCase().includes(query) ||
+        r.user?.email?.toLowerCase().includes(query) ||
+        r.outdoor?.code?.toLowerCase().includes(query)
+      );
+    }
+    
+    return filtered;
+  }, [reservationsWithDetails, statusFilter, clientFilter, searchQuery]);
+  
+  // Get unique clients for filter
+  const uniqueClients = useMemo(() => {
+    const clientMap = new Map();
+    reservationsWithDetails.forEach(r => {
+      if (r.user && !clientMap.has(r.userId)) {
+        clientMap.set(r.userId, r.user);
+      }
+    });
+    return Array.from(clientMap.values());
+  }, [reservationsWithDetails]);
 
   const formatPrice = (price: string | number) => {
     const numPrice = typeof price === 'string' ? parseFloat(price) : price;
@@ -121,20 +158,59 @@ export default function AdminReservas() {
   return (
     <AdminLayout title="Gerenciar Reservas" subtitle="Aprove ou negue as solicitações de reserva">
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Reservas</CardTitle>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-48">
-              <SelectValue placeholder="Filtrar por status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos os status</SelectItem>
-              <SelectItem value="pending">Pendentes</SelectItem>
-              <SelectItem value="approved">Aprovados</SelectItem>
-              <SelectItem value="denied">Negados</SelectItem>
-              <SelectItem value="cancelled">Cancelados</SelectItem>
-            </SelectContent>
-          </Select>
+        <CardHeader>
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <CardTitle>Reservas ({filteredReservations.length})</CardTitle>
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar por nome, email ou outdoor..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9 w-64"
+                />
+              </div>
+              <Select value={clientFilter?.toString() || "all"} onValueChange={(v) => setClientFilter(v === "all" ? null : parseInt(v))}>
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Filtrar por cliente" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos os clientes</SelectItem>
+                  {uniqueClients.map(client => (
+                    <SelectItem key={client.id} value={client.id.toString()}>
+                      {client.name || client.email}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-40">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos</SelectItem>
+                  <SelectItem value="pending">Pendentes</SelectItem>
+                  <SelectItem value="approved">Aprovados</SelectItem>
+                  <SelectItem value="denied">Negados</SelectItem>
+                  <SelectItem value="cancelled">Cancelados</SelectItem>
+                </SelectContent>
+              </Select>
+              {(searchQuery || clientFilter || statusFilter !== "all") && (
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => {
+                    setSearchQuery("");
+                    setClientFilter(null);
+                    setStatusFilter("all");
+                  }}
+                >
+                  Limpar filtros
+                </Button>
+              )}
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -201,46 +277,40 @@ export default function AdminReservas() {
                     </TableCell>
                     <TableCell>{getStatusBadge(reservation.status)}</TableCell>
                     <TableCell className="text-right">
-                      {reservation.status === "pending" && (
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="text-green-600 border-green-200 hover:bg-green-50"
-                            onClick={() => handleStatusChange(reservation.id, "approved")}
-                            disabled={updateStatus.isPending}
-                          >
-                            <CheckCircle className="h-4 w-4 mr-1" />
-                            Aprovar
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="text-red-600 border-red-200 hover:bg-red-50"
-                            onClick={() => handleStatusChange(reservation.id, "denied")}
-                            disabled={updateStatus.isPending}
-                          >
-                            <XCircle className="h-4 w-4 mr-1" />
-                            Negar
-                          </Button>
-                        </div>
-                      )}
-                      {reservation.status !== "pending" && (
-                        <Select
-                          value={reservation.status}
-                          onValueChange={(value) => handleStatusChange(reservation.id, value as any)}
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => navigate(`/admin/reservas/${reservation.id}`)}
+                          title="Ver detalhes"
                         >
-                          <SelectTrigger className="w-32">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="pending">Pendente</SelectItem>
-                            <SelectItem value="approved">Aprovado</SelectItem>
-                            <SelectItem value="denied">Negado</SelectItem>
-                            <SelectItem value="cancelled">Cancelado</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      )}
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        {reservation.status === "pending" && (
+                          <>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-green-600 border-green-200 hover:bg-green-50"
+                              onClick={() => navigate(`/admin/reservas/${reservation.id}`)}
+                              disabled={updateStatus.isPending}
+                            >
+                              <CheckCircle className="h-4 w-4 mr-1" />
+                              Aprovar
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-red-600 border-red-200 hover:bg-red-50"
+                              onClick={() => handleStatusChange(reservation.id, "denied")}
+                              disabled={updateStatus.isPending}
+                            >
+                              <XCircle className="h-4 w-4 mr-1" />
+                              Negar
+                            </Button>
+                          </>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}

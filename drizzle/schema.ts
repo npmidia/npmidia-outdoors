@@ -78,6 +78,14 @@ export const reservations = mysqlTable("reservations", {
   includePaperGlue: boolean("includePaperGlue").default(false).notNull(),
   includeCanvasInstall: boolean("includeCanvasInstall").default(false).notNull(),
   totalValue: decimal("totalValue", { precision: 10, scale: 2 }).notNull(),
+  // Campos de gestão de produção
+  saleNumber: varchar("saleNumber", { length: 50 }), // Número da venda (Conta Azul)
+  artStatus: mysqlEnum("artStatus", ["waiting", "received", "approved", "in_production"]).default("waiting"),
+  adminNotes: text("adminNotes"), // Observações da negociação (interno)
+  clientNotes: text("clientNotes"), // Observações visíveis para o cliente
+  scheduledInstallDate: date("scheduledInstallDate"), // Data de instalação prevista
+  approvedAt: timestamp("approvedAt"), // Data de aprovação
+  approvedBy: int("approvedBy"), // ID do admin que aprovou
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -98,6 +106,28 @@ export const reservationBiweeks = mysqlTable("reservation_biweeks", {
 
 export type ReservationBiweek = typeof reservationBiweeks.$inferSelect;
 export type InsertReservationBiweek = typeof reservationBiweeks.$inferInsert;
+
+/**
+ * Reservation arts - stores artwork files for reservations (with version history)
+ */
+export const reservationArts = mysqlTable("reservation_arts", {
+  id: int("id").autoincrement().primaryKey(),
+  reservationId: int("reservationId").notNull(),
+  fileUrl: text("fileUrl").notNull(), // URL do arquivo no S3
+  fileKey: varchar("fileKey", { length: 255 }).notNull(), // Chave do arquivo no S3
+  fileName: varchar("fileName", { length: 255 }).notNull(), // Nome original do arquivo
+  fileSize: int("fileSize"), // Tamanho em bytes
+  mimeType: varchar("mimeType", { length: 100 }), // Tipo do arquivo
+  uploadedBy: int("uploadedBy").notNull(), // ID do usuário que fez upload
+  uploadedByRole: mysqlEnum("uploadedByRole", ["client", "admin"]).notNull(), // Quem fez upload
+  version: int("version").default(1).notNull(), // Versão da arte
+  isActive: boolean("isActive").default(true).notNull(), // Se é a versão ativa
+  notes: text("notes"), // Observações sobre esta versão
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type ReservationArt = typeof reservationArts.$inferSelect;
+export type InsertReservationArt = typeof reservationArts.$inferInsert;
 
 /**
  * Favorites table - stores user's favorite outdoors

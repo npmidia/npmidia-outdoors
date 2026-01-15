@@ -97,3 +97,16 @@
 
 ## Ajuda de Bi-semanas
 - [x] Adicionar ícone de interrogação (?) nas seções de bi-semanas com modal mostrando tabela de datas
+
+## Gestão Completa de Reservas
+- [x] Adicionar campos no schema: número da venda, status da arte, observações, data instalação prevista
+- [x] Criar tabela para artes (upload de arquivos com histórico de versões)
+- [x] Criar rotas tRPC para gestão de arte e campos de produção
+- [x] Implementar tela de detalhes da reserva no admin com todas as seções
+- [x] Tornar número da venda obrigatório ao aprovar reserva
+- [x] Adicionar upload de arte pelo cliente na área "Minhas Reservas"
+
+## Visualização por Cliente
+- [x] Adicionar filtro por cliente na lista de reservas do admin
+- [x] Criar página de detalhes do cliente com histórico completo
+- [x] Mostrar resumo: total de reservas, valor gasto, reservas ativas/pendentes
