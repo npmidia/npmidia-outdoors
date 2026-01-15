@@ -10,7 +10,7 @@ import { ArrowLeft, User, Building2, Phone, Mail, MapPin, FileText, Save, Loader
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { toast } from "sonner";
-import { getLoginUrl } from "@/const";
+
 
 export default function Perfil() {
   const { user, loading: authLoading, isAuthenticated } = useAuth();
@@ -84,7 +84,7 @@ export default function Perfil() {
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
             <Button asChild className="w-full">
-              <a href={getLoginUrl()}>Fazer Login</a>
+              <Link href="/login">Fazer Login</Link>
             </Button>
             <Button variant="outline" asChild className="w-full">
               <Link href="/">Voltar ao Início</Link>

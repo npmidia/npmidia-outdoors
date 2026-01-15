@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getLoginUrl } from "@/const";
+
 import { trpc } from "@/lib/trpc";
 import { MapPin, Lightbulb, Search, ShoppingCart, Heart, ArrowLeft } from "lucide-react";
 import { useState, useMemo } from "react";
@@ -48,7 +48,7 @@ export default function Outdoors() {
 
   const handleReserve = (outdoorId: number) => {
     if (!isAuthenticated) {
-      window.location.href = getLoginUrl();
+      setLocation('/login');
       return;
     }
     setLocation(`/reservar/${outdoorId}`);
@@ -85,9 +85,9 @@ export default function Outdoors() {
                 )}
               </>
             ) : (
-              <a href={getLoginUrl()}>
+              <Link href="/login">
                 <Button variant="default">Entrar</Button>
-              </a>
+              </Link>
             )}
           </nav>
         </div>
@@ -238,7 +238,7 @@ function OutdoorCard({ outdoor, isFavorite, isAuthenticated, onReserve }: Outdoo
   const handleFavoriteToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!isAuthenticated) {
-      window.location.href = getLoginUrl();
+      window.location.href = '/login';
       return;
     }
     if (isFavorite) {

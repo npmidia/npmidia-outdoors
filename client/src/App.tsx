@@ -13,6 +13,8 @@ import Carrinho from "./pages/Carrinho";
 import MinhasReservas from "./pages/MinhasReservas";
 import Favoritos from "./pages/Favoritos";
 import Perfil from "./pages/Perfil";
+import Login from "./pages/Login";
+import Cadastro from "./pages/Cadastro";
 
 // Admin Pages
 import AdminDashboard from "./pages/admin/Dashboard";
@@ -26,6 +28,8 @@ function Router() {
     <Switch>
       {/* Public Routes */}
       <Route path="/" component={Home} />
+      <Route path="/login" component={Login} />
+      <Route path="/cadastro" component={Cadastro} />
       <Route path="/outdoors" component={Outdoors} />
       <Route path="/reservar/:id" component={Reservar} />
       

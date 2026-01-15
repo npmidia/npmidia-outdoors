@@ -268,10 +268,18 @@ class SDKServer {
 
     const sessionUserId = session.openId;
     const signedInAt = new Date();
-    let user = await db.getUserByOpenId(sessionUserId);
+    
+    // Check if it's an email-based session (openId starts with 'email:')
+    let user;
+    if (sessionUserId.startsWith('email:')) {
+      const email = sessionUserId.replace('email:', '');
+      user = await db.getUserByEmail(email);
+    } else {
+      user = await db.getUserByOpenId(sessionUserId);
+    }
 
-    // If user not in DB, sync from OAuth server automatically
-    if (!user) {
+    // If user not in DB and it's not an email-based session, sync from OAuth server
+    if (!user && !sessionUserId.startsWith('email:')) {
       try {
         const userInfo = await this.getUserInfoWithJwt(sessionCookie ?? "");
         await db.upsertUser({
@@ -292,10 +300,15 @@ class SDKServer {
       throw ForbiddenError("User not found");
     }
 
-    await db.upsertUser({
-      openId: user.openId,
-      lastSignedIn: signedInAt,
-    });
+    // Update last sign in for email users
+    if (sessionUserId.startsWith('email:')) {
+      await db.updateUserLastSignIn(user.id);
+    } else if (user.openId) {
+      await db.upsertUser({
+        openId: user.openId,
+        lastSignedIn: signedInAt,
+      });
+    }
 
     return user;
   }

@@ -49,3 +49,12 @@
 - [x] Corrigir erro no cadastro de outdoor
 - [x] Implementar upload de fotos para outdoors
 - [x] Trocar logomarca pela nova versão (logoNPMIDIA-2023.png)
+
+
+## Sistema de Cadastro por E-mail
+- [x] Adicionar campo de senha (hash) no schema de usuários
+- [x] Criar rotas tRPC para registro e login por e-mail/senha
+- [x] Criar página de Login por e-mail/senha
+- [x] Criar página de Cadastro com campos: nome, e-mail, telefone, empresa, senha
+- [x] Remover login pelo Manus OAuth
+- [x] Atualizar navegação para usar novo sistema de autenticação

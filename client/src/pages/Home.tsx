@@ -1,6 +1,6 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { getLoginUrl } from "@/const";
+
 import { MapPin, Lightbulb, Calendar, ShoppingCart, ArrowRight, User } from "lucide-react";
 import { Link } from "wouter";
 
@@ -41,9 +41,9 @@ export default function Home() {
                 )}
               </>
             ) : (
-              <a href={getLoginUrl()}>
+              <Link href="/login">
                 <Button variant="default">Entrar</Button>
-              </a>
+              </Link>
             )}
           </nav>
         </div>
@@ -70,11 +70,11 @@ export default function Home() {
                   </Button>
                 </Link>
                 {!isAuthenticated && (
-                  <a href={getLoginUrl()}>
+                  <Link href="/cadastro">
                     <Button size="lg" variant="outline">
                       Criar Conta
                     </Button>
-                  </a>
+                  </Link>
                 )}
               </div>
             </div>
