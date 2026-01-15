@@ -75,3 +75,7 @@
 ## Melhorias nos Filtros de Pesquisa
 - [x] Adicionar filtro de bi-semanas para ver outdoors disponíveis no período
 - [x] Melhorar filtro de iluminação com caixas de seleção (com, sem, ambos)
+
+
+## Melhorias na Interface
+- [x] Criar botão "Limpar Filtros" que restaura todos os filtros para o estado inicial

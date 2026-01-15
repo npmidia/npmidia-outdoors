@@ -8,7 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 import { trpc } from "@/lib/trpc";
-import { MapPin, Lightbulb, Search, ShoppingCart, Heart, ArrowLeft, Calendar } from "lucide-react";
+import { MapPin, Lightbulb, Search, ShoppingCart, Heart, ArrowLeft, Calendar, X } from "lucide-react";
 import { useState, useMemo } from "react";
 import { Link, useLocation } from "wouter";
 
@@ -225,19 +225,31 @@ export default function Outdoors() {
                       Sem iluminação
                     </Label>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-xs h-7"
-                    onClick={() => {
-                      setFilterWithLighting(true);
-                      setFilterWithoutLighting(true);
-                    }}
-                  >
-                    Limpar filtros
-                  </Button>
                 </div>
               </div>
+            </div>
+            
+            {/* Clear All Filters Button */}
+            <div className="mt-4 pt-4 border-t border-border flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">
+                {(searchQuery || selectedBiweek !== "" || !filterWithLighting || !filterWithoutLighting) && (
+                  <span>Filtros ativos</span>
+                )}
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2"
+                onClick={() => {
+                  setSearchQuery("");
+                  setSelectedBiweek("");
+                  setFilterWithLighting(true);
+                  setFilterWithoutLighting(true);
+                }}
+              >
+                <X className="h-4 w-4" />
+                Limpar Todos os Filtros
+              </Button>
             </div>
           </div>
 
