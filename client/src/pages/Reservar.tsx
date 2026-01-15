@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { MapPin, Lightbulb, ArrowLeft, ShoppingCart, Check, Calendar } from "lucide-react";
+import { BiweekHelpModal } from "@/components/BiweekHelpModal";
 import { useState, useMemo, useEffect } from "react";
 import { Link, useParams, useLocation } from "wouter";
 import { toast } from "sonner";
@@ -309,6 +310,7 @@ export default function Reservar() {
                   <CardTitle className="flex items-center gap-2">
                     <Calendar className="h-5 w-5" />
                     Bi-semanas {currentYear}
+                    <BiweekHelpModal year={currentYear} />
                   </CardTitle>
                   <div className="flex flex-wrap gap-4 text-sm mt-2">
                     <div className="flex items-center gap-2">

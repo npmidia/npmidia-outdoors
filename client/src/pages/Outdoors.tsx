@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 import { trpc } from "@/lib/trpc";
 import { MapPin, Lightbulb, Search, ShoppingCart, Heart, ArrowLeft, Calendar, X } from "lucide-react";
+import { BiweekHelpModal } from "@/components/BiweekHelpModal";
 import { useState, useMemo } from "react";
 import { Link, useLocation } from "wouter";
 
@@ -183,6 +184,7 @@ export default function Outdoors() {
                 <Label className="mb-2 block flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
                   Filtrar por Bi-semana {selectedBiweeks.length > 0 && <span className="text-primary font-semibold">({selectedBiweeks.length} selecionada{selectedBiweeks.length > 1 ? 's' : ''})</span>}
+                  <BiweekHelpModal year={currentYear} />
                 </Label>
                 <div className="flex flex-wrap gap-2 mb-2 text-xs">
                   <div className="flex items-center gap-1">

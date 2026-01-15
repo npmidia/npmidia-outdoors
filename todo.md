@@ -94,3 +94,6 @@
 - [x] Clientes ativos (quantidade de clientes com reservas)
 - [x] Alerta/destaque para reservas pendentes há mais de 24 horas
 - [x] Notificações de reservas em tempo real (atualização automática a cada 30s)
+
+## Ajuda de Bi-semanas
+- [x] Adicionar ícone de interrogação (?) nas seções de bi-semanas com modal mostrando tabela de datas
