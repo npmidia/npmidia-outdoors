@@ -117,3 +117,8 @@
 
 ## Correções de UX
 - [x] Alterar detalhes da reserva para salvar apenas ao clicar em botão Salvar (não a cada digitação)
+
+## Melhorias de Layout Admin
+- [x] Sidebar colapsável no desktop (minimiza para ícones)
+- [x] Drawer/menu lateral deslizante no mobile
+- [x] Corrigir sobreposição da sidebar com conteúdo
