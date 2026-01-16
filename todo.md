@@ -129,3 +129,6 @@
 ## Melhorias em Minhas Reservas (Cliente)
 - [x] Exibir bi-semanas compradas com números e datas
 - [x] Exibir serviços extras (Papel/Colagem, Lona/Instalação)
+
+## Correção de Bug
+- [x] Corrigir exibição das bi-semanas em Minhas Reservas (não está aparecendo)

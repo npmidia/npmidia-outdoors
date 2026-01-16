@@ -300,7 +300,30 @@ export async function createReservation(reservation: InsertReservation, biweekId
 export async function getReservationsByUser(userId: number) {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(reservations).where(eq(reservations.userId, userId)).orderBy(desc(reservations.createdAt));
+  
+  const userReservations = await db.select().from(reservations).where(eq(reservations.userId, userId)).orderBy(desc(reservations.createdAt));
+  
+  // Get biweek numbers for each reservation
+  const reservationsWithBiweeks = await Promise.all(
+    userReservations.map(async (reservation) => {
+      const biweekLinks = await db.select().from(reservationBiweeks).where(eq(reservationBiweeks.reservationId, reservation.id));
+      const biweekIds = biweekLinks.map(link => link.biweekId);
+      
+      // Get biweek numbers from IDs
+      let biweekNumbers: number[] = [];
+      if (biweekIds.length > 0) {
+        const biweeksData = await db.select().from(biweeks).where(inArray(biweeks.id, biweekIds));
+        biweekNumbers = biweeksData.map(b => b.biweekNumber);
+      }
+      
+      return {
+        ...reservation,
+        biweekNumbers,
+      };
+    })
+  );
+  
+  return reservationsWithBiweeks;
 }
 
 export async function getAllReservations() {
