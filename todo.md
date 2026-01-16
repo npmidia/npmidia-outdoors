@@ -110,3 +110,7 @@
 - [x] Adicionar filtro por cliente na lista de reservas do admin
 - [x] Criar página de detalhes do cliente com histórico completo
 - [x] Mostrar resumo: total de reservas, valor gasto, reservas ativas/pendentes
+
+## Melhorias no Filtro de Reservas
+- [x] Adicionar número da venda no campo de busca das reservas
+- [x] Exibir coluna de número da venda na tabela de reservas

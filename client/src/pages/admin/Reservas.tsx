@@ -80,7 +80,8 @@ export default function AdminReservas() {
       filtered = filtered.filter(r => 
         r.user?.name?.toLowerCase().includes(query) ||
         r.user?.email?.toLowerCase().includes(query) ||
-        r.outdoor?.code?.toLowerCase().includes(query)
+        r.outdoor?.code?.toLowerCase().includes(query) ||
+        r.saleNumber?.toLowerCase().includes(query)
       );
     }
     
@@ -165,7 +166,7 @@ export default function AdminReservas() {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Buscar por nome, email ou outdoor..."
+                  placeholder="Buscar por nome, email, outdoor ou nº venda..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-9 w-64"
@@ -220,6 +221,7 @@ export default function AdminReservas() {
               <TableHeader>
                 <TableRow>
                   <TableHead>ID</TableHead>
+                  <TableHead>Nº Venda</TableHead>
                   <TableHead>Cliente</TableHead>
                   <TableHead>E-mail</TableHead>
                   <TableHead>Telefone</TableHead>
@@ -235,6 +237,13 @@ export default function AdminReservas() {
                 {filteredReservations.map((reservation) => (
                   <TableRow key={reservation.id}>
                     <TableCell className="font-mono text-sm">#{reservation.id}</TableCell>
+                    <TableCell className="font-mono text-sm">
+                      {reservation.saleNumber ? (
+                        <span className="text-primary font-medium">{reservation.saleNumber}</span>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
+                    </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <User className="h-4 w-4 text-muted-foreground" />
