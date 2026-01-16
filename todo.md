@@ -122,3 +122,6 @@
 - [x] Sidebar colapsável no desktop (minimiza para ícones)
 - [x] Drawer/menu lateral deslizante no mobile
 - [x] Corrigir sobreposição da sidebar com conteúdo
+
+## Simplificação da Tabela de Reservas
+- [x] Remover colunas de e-mail e telefone da tabela de reservas

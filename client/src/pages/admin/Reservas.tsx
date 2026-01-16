@@ -18,7 +18,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { trpc } from "@/lib/trpc";
-import { Calendar, CheckCircle, XCircle, Clock, AlertCircle, User, Phone, Mail, Eye, Search } from "lucide-react";
+import { Calendar, CheckCircle, XCircle, Clock, AlertCircle, User, Eye, Search } from "lucide-react";
 import { useState, useMemo } from "react";
 import { useLocation } from "wouter";
 import { Input } from "@/components/ui/input";
@@ -223,8 +223,6 @@ export default function AdminReservas() {
                   <TableHead>ID</TableHead>
                   <TableHead>Nº Venda</TableHead>
                   <TableHead>Cliente</TableHead>
-                  <TableHead>E-mail</TableHead>
-                  <TableHead>Telefone</TableHead>
                   <TableHead>Outdoor</TableHead>
                   <TableHead>Serviços</TableHead>
                   <TableHead>Valor</TableHead>
@@ -248,18 +246,6 @@ export default function AdminReservas() {
                       <div className="flex items-center gap-2">
                         <User className="h-4 w-4 text-muted-foreground" />
                         <span className="font-medium">{reservation.user?.name || "Usuário"}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                        <Mail className="h-3 w-3" />
-                        <span>{reservation.user?.email || "-"}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                        <Phone className="h-3 w-3" />
-                        <span>{reservation.user?.phone || "-"}</span>
                       </div>
                     </TableCell>
                     <TableCell>
