@@ -125,3 +125,7 @@
 
 ## Simplificação da Tabela de Reservas
 - [x] Remover colunas de e-mail e telefone da tabela de reservas
+
+## Melhorias em Minhas Reservas (Cliente)
+- [x] Exibir bi-semanas compradas com números e datas
+- [x] Exibir serviços extras (Papel/Colagem, Lona/Instalação)

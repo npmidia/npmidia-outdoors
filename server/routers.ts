@@ -288,6 +288,8 @@ export const appRouter = router({
         await db.updateReservationStatus(input.id, input.status);
         return { success: true };
       }),
+
+    
   }),
 
   // ============ FAVORITES ROUTES ============

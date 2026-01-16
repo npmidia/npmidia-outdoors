@@ -37,6 +37,7 @@ import {
   Info,
   Palette,
   Wrench,
+  CalendarDays,
 } from "lucide-react";
 import { useEffect, useMemo, useState, useRef } from "react";
 import { Link } from "wouter";
@@ -72,6 +73,19 @@ export default function MinhasReservas() {
       setIsUploading(false);
     },
   });
+
+  const getBiweekInfo = (biweekNumbers: number[] | null) => {
+    if (!biweekNumbers || biweekNumbers.length === 0 || !allBiweeks) return null;
+    return biweekNumbers.map(num => {
+      const biweek = allBiweeks.find(b => b.biweekNumber === num);
+      if (biweek) {
+        const startDate = new Date(biweek.startDate).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+        const endDate = new Date(biweek.endDate).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+        return { number: num, period: `${startDate} - ${endDate}` };
+      }
+      return { number: num, period: '' };
+    });
+  };
 
   const reservationsWithDetails = useMemo(() => {
     if (!reservations || !outdoors) return [];
@@ -361,7 +375,7 @@ export default function MinhasReservas() {
                           </div>
                         </div>
 
-                        <div className="grid sm:grid-cols-3 gap-4 text-sm">
+                        <div className="grid sm:grid-cols-2 gap-4 text-sm">
                           <div>
                             <p className="text-muted-foreground">Data do pedido:</p>
                             <p className="font-medium">{formatDate(reservation.createdAt)}</p>
@@ -370,34 +384,61 @@ export default function MinhasReservas() {
                             <p className="text-muted-foreground">Valor total:</p>
                             <p className="font-bold text-primary">{formatPrice(reservation.totalValue)}</p>
                           </div>
-                          <div>
-                            <p className="text-muted-foreground">Arte:</p>
-                            <p className={`font-medium ${getArtStatusColor((reservation as any).artStatus)}`}>
-                              {getArtStatusText((reservation as any).artStatus)}
-                            </p>
-                          </div>
                         </div>
 
-                        {/* Services */}
-                        {(reservation.includePaperGlue || reservation.includeCanvasInstall) && (
+                        {/* Bi-semanas */}
+                        {(reservation as any).biweekNumbers && (reservation as any).biweekNumbers.length > 0 && (
                           <div className="mt-3 pt-3 border-t border-border">
-                            <p className="text-sm text-muted-foreground mb-1">Serviços inclusos:</p>
+                            <p className="text-sm text-muted-foreground mb-2 flex items-center gap-1">
+                              <CalendarDays className="h-4 w-4" />
+                              Bi-semanas reservadas:
+                            </p>
                             <div className="flex flex-wrap gap-2">
-                              {reservation.includePaperGlue && (
-                                <Badge variant="secondary" className="flex items-center gap-1">
-                                  <Palette className="h-3 w-3" />
-                                  Papel e Colagem
+                              {getBiweekInfo((reservation as any).biweekNumbers)?.map((bw) => (
+                                <Badge key={bw.number} variant="outline" className="bg-primary/5 text-primary border-primary/20">
+                                  {String(bw.number).padStart(2, '0')} ({bw.period})
                                 </Badge>
-                              )}
-                              {reservation.includeCanvasInstall && (
-                                <Badge variant="secondary" className="flex items-center gap-1">
-                                  <Wrench className="h-3 w-3" />
-                                  Lona e Instalação
-                                </Badge>
-                              )}
+                              ))}
                             </div>
                           </div>
                         )}
+
+                        {/* Services */}
+                        <div className="mt-3 pt-3 border-t border-border">
+                          <p className="text-sm text-muted-foreground mb-2">Serviços:</p>
+                          <div className="flex flex-wrap gap-2">
+                            {reservation.includePaperGlue ? (
+                              <Badge variant="secondary" className="flex items-center gap-1 bg-green-50 text-green-700 border-green-200">
+                                <Palette className="h-3 w-3" />
+                                Papel e Colagem
+                              </Badge>
+                            ) : (
+                              <Badge variant="outline" className="flex items-center gap-1 text-muted-foreground">
+                                <Palette className="h-3 w-3" />
+                                Sem Papel/Colagem
+                              </Badge>
+                            )}
+                            {reservation.includeCanvasInstall ? (
+                              <Badge variant="secondary" className="flex items-center gap-1 bg-blue-50 text-blue-700 border-blue-200">
+                                <Wrench className="h-3 w-3" />
+                                Lona e Instalação
+                              </Badge>
+                            ) : (
+                              <Badge variant="outline" className="flex items-center gap-1 text-muted-foreground">
+                                <Wrench className="h-3 w-3" />
+                                Sem Lona/Instalação
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Arte Status */}
+                        <div className="mt-3 pt-3 border-t border-border">
+                          <p className="text-sm text-muted-foreground">Status da Arte:</p>
+                          <p className={`font-medium ${getArtStatusColor((reservation as any).artStatus)}`}>
+                            {getArtStatusText((reservation as any).artStatus)}
+                          </p>
+                        </div>
                       </CardContent>
                     </div>
 
@@ -451,6 +492,8 @@ export default function MinhasReservas() {
                                 <p className="font-medium">{formatDate((reservation as any).scheduledInstallDate)}</p>
                               </div>
                             )}
+
+                            
                           </div>
                         </div>
                       </div>
