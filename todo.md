@@ -114,3 +114,6 @@
 ## Melhorias no Filtro de Reservas
 - [x] Adicionar número da venda no campo de busca das reservas
 - [x] Exibir coluna de número da venda na tabela de reservas
+
+## Correções de UX
+- [x] Alterar detalhes da reserva para salvar apenas ao clicar em botão Salvar (não a cada digitação)

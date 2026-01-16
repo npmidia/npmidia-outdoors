@@ -42,7 +42,7 @@ import {
   Palette,
   Wrench,
 } from "lucide-react";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useParams, useLocation } from "wouter";
 import { toast } from "sonner";
 
@@ -56,22 +56,62 @@ export default function ReservationDetails() {
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
+  // Local state for production fields (to avoid saving on every keystroke)
+  const [localSaleNumber, setLocalSaleNumber] = useState("");
+  const [localAdminNotes, setLocalAdminNotes] = useState("");
+  const [localClientNotes, setLocalClientNotes] = useState("");
+  const [localScheduledInstallDate, setLocalScheduledInstallDate] = useState("");
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  
   const { data: reservation, isLoading, refetch } = trpc.admin.getReservationDetails.useQuery(
     { id: reservationId },
     { enabled: reservationId > 0 }
   );
   
+  // Sync local state with server data when reservation loads
+  useEffect(() => {
+    if (reservation) {
+      setLocalSaleNumber(reservation.saleNumber || "");
+      setLocalAdminNotes(reservation.adminNotes || "");
+      setLocalClientNotes(reservation.clientNotes || "");
+      setLocalScheduledInstallDate(
+        reservation.scheduledInstallDate 
+          ? new Date(reservation.scheduledInstallDate).toISOString().split('T')[0] 
+          : ""
+      );
+      setHasUnsavedChanges(false);
+    }
+  }, [reservation]);
+  
   const utils = trpc.useUtils();
   
   const updateProduction = trpc.admin.updateReservationProduction.useMutation({
     onSuccess: () => {
-      toast.success("Informações atualizadas!");
+      toast.success("Informações salvas com sucesso!");
+      setHasUnsavedChanges(false);
       refetch();
     },
     onError: (error) => {
-      toast.error(error.message || "Erro ao atualizar");
+      toast.error(error.message || "Erro ao salvar");
     },
   });
+  
+  // Function to save all production fields at once
+  const handleSaveProduction = () => {
+    updateProduction.mutate({
+      id: reservationId,
+      saleNumber: localSaleNumber || null,
+      adminNotes: localAdminNotes || null,
+      clientNotes: localClientNotes || null,
+      scheduledInstallDate: localScheduledInstallDate || null,
+    });
+  };
+  
+  // Track changes
+  const handleFieldChange = (setter: React.Dispatch<React.SetStateAction<string>>, value: string) => {
+    setter(value);
+    setHasUnsavedChanges(true);
+  };
   
   const approveWithSale = trpc.admin.approveWithSaleNumber.useMutation({
     onSuccess: () => {
@@ -566,17 +606,22 @@ export default function ReservationDetails() {
           {/* Production Management */}
           <Card>
             <CardHeader>
-              <CardTitle>Gestão de Produção</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle>Gestão de Produção</CardTitle>
+                {hasUnsavedChanges && (
+                  <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
+                    Alterações não salvas
+                  </Badge>
+                )}
+              </div>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
                 <Label htmlFor="saleNumber">Nº da Venda (Conta Azul)</Label>
                 <Input
                   id="saleNumber"
-                  value={reservation.saleNumber || ""}
-                  onChange={(e) => {
-                    updateProduction.mutate({ id: reservationId, saleNumber: e.target.value || null });
-                  }}
+                  value={localSaleNumber}
+                  onChange={(e) => handleFieldChange(setLocalSaleNumber, e.target.value)}
                   placeholder="Ex: 12345"
                 />
               </div>
@@ -604,10 +649,8 @@ export default function ReservationDetails() {
                 <Input
                   id="scheduledInstallDate"
                   type="date"
-                  value={reservation.scheduledInstallDate ? new Date(reservation.scheduledInstallDate).toISOString().split('T')[0] : ""}
-                  onChange={(e) => {
-                    updateProduction.mutate({ id: reservationId, scheduledInstallDate: e.target.value || null });
-                  }}
+                  value={localScheduledInstallDate}
+                  onChange={(e) => handleFieldChange(setLocalScheduledInstallDate, e.target.value)}
                 />
               </div>
               
@@ -615,10 +658,8 @@ export default function ReservationDetails() {
                 <Label htmlFor="adminNotes">Observações Internas</Label>
                 <Textarea
                   id="adminNotes"
-                  value={reservation.adminNotes || ""}
-                  onChange={(e) => {
-                    updateProduction.mutate({ id: reservationId, adminNotes: e.target.value || null });
-                  }}
+                  value={localAdminNotes}
+                  onChange={(e) => handleFieldChange(setLocalAdminNotes, e.target.value)}
                   placeholder="Notas internas sobre a negociação..."
                   rows={3}
                 />
@@ -628,14 +669,20 @@ export default function ReservationDetails() {
                 <Label htmlFor="clientNotes">Observações para o Cliente</Label>
                 <Textarea
                   id="clientNotes"
-                  value={reservation.clientNotes || ""}
-                  onChange={(e) => {
-                    updateProduction.mutate({ id: reservationId, clientNotes: e.target.value || null });
-                  }}
+                  value={localClientNotes}
+                  onChange={(e) => handleFieldChange(setLocalClientNotes, e.target.value)}
                   placeholder="Mensagem visível para o cliente..."
                   rows={3}
                 />
               </div>
+              
+              <Button 
+                onClick={handleSaveProduction}
+                disabled={!hasUnsavedChanges || updateProduction.isPending}
+                className="w-full"
+              >
+                {updateProduction.isPending ? "Salvando..." : "Salvar Alterações"}
+              </Button>
             </CardContent>
           </Card>
           
