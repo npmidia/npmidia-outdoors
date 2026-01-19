@@ -1,0 +1,250 @@
+{
+  "query": "SELECT r.id, r.status as reservation_status, r.outdoorId, rb.biweekId, rb.status as biweek_status, b.biweekNumber\nFROM reservations r\nLEFT JOIN reservation_biweeks rb ON r.id = rb.reservationId\nLEFT JOIN biweeks b ON rb.biweekId = b.id\nORDER BY r.id DESC\nLIMIT 30;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4Wf91herQWe5qWy.4e2254682e8c --database cXhAG5EAB7dbX8eMQWgiMq --execute SELECT r.id, r.status as reservation_status, r.outdoorId, rb.biweekId, rb.status as biweek_status, b.biweekNumber\nFROM reservations r\nLEFT JOIN reservation_biweeks rb ON r.id = rb.reservationId\nLEFT JOIN biweeks b ON rb.biweekId = b.id\nORDER BY r.id DESC\nLIMIT 30;",
+  "rows": [
+    {
+      "id": "330001",
+      "reservation_status": "approved",
+      "outdoorId": "30007",
+      "biweekId": "4",
+      "biweek_status": "blocked",
+      "biweekNumber": "8"
+    },
+    {
+      "id": "330001",
+      "reservation_status": "approved",
+      "outdoorId": "30007",
+      "biweekId": "3",
+      "biweek_status": "blocked",
+      "biweekNumber": "6"
+    },
+    {
+      "id": "300001",
+      "reservation_status": "pending",
+      "outdoorId": "30004",
+      "biweekId": "13",
+      "biweek_status": "pending",
+      "biweekNumber": "26"
+    },
+    {
+      "id": "300001",
+      "reservation_status": "pending",
+      "outdoorId": "30004",
+      "biweekId": "7",
+      "biweek_status": "pending",
+      "biweekNumber": "14"
+    },
+    {
+      "id": "300001",
+      "reservation_status": "pending",
+      "outdoorId": "30004",
+      "biweekId": "20",
+      "biweek_status": "pending",
+      "biweekNumber": "40"
+    },
+    {
+      "id": "300001",
+      "reservation_status": "pending",
+      "outdoorId": "30004",
+      "biweekId": "24",
+      "biweek_status": "pending",
+      "biweekNumber": "48"
+    },
+    {
+      "id": "300001",
+      "reservation_status": "pending",
+      "outdoorId": "30004",
+      "biweekId": "21",
+      "biweek_status": "pending",
+      "biweekNumber": "42"
+    },
+    {
+      "id": "300001",
+      "reservation_status": "pending",
+      "outdoorId": "30004",
+      "biweekId": "5",
+      "biweek_status": "pending",
+      "biweekNumber": "10"
+    },
+    {
+      "id": "300001",
+      "reservation_status": "pending",
+      "outdoorId": "30004",
+      "biweekId": "12",
+      "biweek_status": "pending",
+      "biweekNumber": "24"
+    },
+    {
+      "id": "300001",
+      "reservation_status": "pending",
+      "outdoorId": "30004",
+      "biweekId": "16",
+      "biweek_status": "pending",
+      "biweekNumber": "32"
+    },
+    {
+      "id": "300001",
+      "reservation_status": "pending",
+      "outdoorId": "30004",
+      "biweekId": "19",
+      "biweek_status": "pending",
+      "biweekNumber": "38"
+    },
+    {
+      "id": "300001",
+      "reservation_status": "pending",
+      "outdoorId": "30004",
+      "biweekId": "6",
+      "biweek_status": "pending",
+      "biweekNumber": "12"
+    },
+    {
+      "id": "300001",
+      "reservation_status": "pending",
+      "outdoorId": "30004",
+      "biweekId": "23",
+      "biweek_status": "pending",
+      "biweekNumber": "46"
+    },
+    {
+      "id": "300001",
+      "reservation_status": "pending",
+      "outdoorId": "30004",
+      "biweekId": "4",
+      "biweek_status": "pending",
+      "biweekNumber": "8"
+    },
+    {
+      "id": "300001",
+      "reservation_status": "pending",
+      "outdoorId": "30004",
+      "biweekId": "10",
+      "biweek_status": "pending",
+      "biweekNumber": "20"
+    },
+    {
+      "id": "300001",
+      "reservation_status": "pending",
+      "outdoorId": "30004",
+      "biweekId": "9",
+      "biweek_status": "pending",
+      "biweekNumber": "18"
+    },
+    {
+      "id": "300001",
+      "reservation_status": "pending",
+      "outdoorId": "30004",
+      "biweekId": "3",
+      "biweek_status": "pending",
+      "biweekNumber": "6"
+    },
+    {
+      "id": "300001",
+      "reservation_status": "pending",
+      "outdoorId": "30004",
+      "biweekId": "8",
+      "biweek_status": "pending",
+      "biweekNumber": "16"
+    },
+    {
+      "id": "300001",
+      "reservation_status": "pending",
+      "outdoorId": "30004",
+      "biweekId": "11",
+      "biweek_status": "pending",
+      "biweekNumber": "22"
+    },
+    {
+      "id": "300001",
+      "reservation_status": "pending",
+      "outdoorId": "30004",
+      "biweekId": "14",
+      "biweek_status": "pending",
+      "biweekNumber": "28"
+    },
+    {
+      "id": "300001",
+      "reservation_status": "pending",
+      "outdoorId": "30004",
+      "biweekId": "15",
+      "biweek_status": "pending",
+      "biweekNumber": "30"
+    },
+    {
+      "id": "300001",
+      "reservation_status": "pending",
+      "outdoorId": "30004",
+      "biweekId": "17",
+      "biweek_status": "pending",
+      "biweekNumber": "34"
+    },
+    {
+      "id": "300001",
+      "reservation_status": "pending",
+      "outdoorId": "30004",
+      "biweekId": "18",
+      "biweek_status": "pending",
+      "biweekNumber": "36"
+    },
+    {
+      "id": "300001",
+      "reservation_status": "pending",
+      "outdoorId": "30004",
+      "biweekId": "26",
+      "biweek_status": "pending",
+      "biweekNumber": "52"
+    },
+    {
+      "id": "300001",
+      "reservation_status": "pending",
+      "outdoorId": "30004",
+      "biweekId": "22",
+      "biweek_status": "pending",
+      "biweekNumber": "44"
+    },
+    {
+      "id": "300001",
+      "reservation_status": "pending",
+      "outdoorId": "30004",
+      "biweekId": "25",
+      "biweek_status": "pending",
+      "biweekNumber": "50"
+    },
+    {
+      "id": "270001",
+      "reservation_status": "pending",
+      "outdoorId": "1",
+      "biweekId": "3",
+      "biweek_status": "pending",
+      "biweekNumber": "6"
+    },
+    {
+      "id": "240003",
+      "reservation_status": "approved",
+      "outdoorId": "30003",
+      "biweekId": "6",
+      "biweek_status": "blocked",
+      "biweekNumber": "12"
+    },
+    {
+      "id": "240003",
+      "reservation_status": "approved",
+      "outdoorId": "30003",
+      "biweekId": "24",
+      "biweek_status": "blocked",
+      "biweekNumber": "48"
+    },
+    {
+      "id": "240003",
+      "reservation_status": "approved",
+      "outdoorId": "30003",
+      "biweekId": "5",
+      "biweek_status": "blocked",
+      "biweekNumber": "10"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\treservation_status\toutdoorId\tbiweekId\tbiweek_status\tbiweekNumber\n330001\tapproved\t30007\t4\tblocked\t8\n330001\tapproved\t30007\t3\tblocked\t6\n300001\tpending\t30004\t13\tpending\t26\n300001\tpending\t30004\t7\tpending\t14\n300001\tpending\t30004\t20\tpending\t40\n300001\tpending\t30004\t24\tpending\t48\n300001\tpending\t30004\t21\tpending\t42\n300001\tpending\t30004\t5\tpending\t10\n300001\tpending\t30004\t12\tpending\t24\n300001\tpending\t30004\t16\tpending\t32\n300001\tpending\t30004\t19\tpending\t38\n300001\tpending\t30004\t6\tpending\t12\n300001\tpending\t30004\t23\tpending\t46\n300001\tpending\t30004\t4\tpending\t8\n300001\tpending\t30004\t10\tpending\t20\n300001\tpending\t30004\t9\tpending\t18\n300001\tpending\t30004\t3\tpending\t6\n300001\tpending\t30004\t8\tpending\t16\n300001\tpending\t30004\t11\tpending\t22\n300001\tpending\t30004\t14\tpending\t28\n300001\tpending\t30004\t15\tpending\t30\n300001\tpending\t30004\t17\tpending\t34\n300001\tpending\t30004\t18\tpending\t36\n300001\tpending\t30004\t26\tpending\t52\n300001\tpending\t30004\t22\tpending\t44\n300001\tpending\t30004\t25\tpending\t50\n270001\tpending\t1\t3\tpending\t6\n240003\tapproved\t30003\t6\tblocked\t12\n240003\tapproved\t30003\t24\tblocked\t48\n240003\tapproved\t30003\t5\tblocked\t10\n",
+  "stderr": "",
+  "execution_time_ms": 57
+}

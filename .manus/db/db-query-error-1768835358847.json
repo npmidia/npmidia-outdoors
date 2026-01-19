@@ -1,0 +1,8 @@
+{
+  "query": "SELECT r.id, r.status, r.totalValue, o.title as outdoor_name, rb.biweekId, rb.status as biweek_status, b.biweekNumber\nFROM reservations r\nJOIN outdoors o ON r.outdoorId = o.id\nLEFT JOIN reservation_biweeks rb ON r.id = rb.reservationId\nLEFT JOIN biweeks b ON rb.biweekId = b.id\nWHERE o.title LIKE '%Fepasa%'\nORDER BY r.id DESC, b.biweekNumber ASC\nLIMIT 50;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4Wf91herQWe5qWy.4e2254682e8c --database cXhAG5EAB7dbX8eMQWgiMq --execute SELECT r.id, r.status, r.totalValue, o.title as outdoor_name, rb.biweekId, rb.status as biweek_status, b.biweekNumber\nFROM reservations r\nJOIN outdoors o ON r.outdoorId = o.id\nLEFT JOIN reservation_biweeks rb ON r.id = rb.reservationId\nLEFT JOIN biweeks b ON rb.biweekId = b.id\nWHERE o.title LIKE '%Fepasa%'\nORDER BY r.id DESC, b.biweekNumber ASC\nLIMIT 50;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 1: Unknown column 'o.title' in 'where clause'"
+  ]
+}

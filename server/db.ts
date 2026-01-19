@@ -389,10 +389,28 @@ export async function getBiweekStatusForOutdoor(outdoorId: number, year: number)
     .where(eq(reservationBiweeks.outdoorId, outdoorId));
   
   return yearBiweeks.map(biweek => {
-    const reserved = reservedBiweeks.find(rb => rb.biweekId === biweek.id);
+    // Find all reservation_biweeks for this biweek
+    const allReserved = reservedBiweeks.filter(rb => rb.biweekId === biweek.id);
+    
+    // Determine the effective status:
+    // - If any is "blocked", the biweek is blocked (approved reservation)
+    // - If any is "pending", the biweek is pending (awaiting approval)
+    // - Otherwise, it's available
+    let effectiveStatus: "available" | "pending" | "blocked" = "available";
+    
+    for (const rb of allReserved) {
+      if (rb.status === "blocked") {
+        effectiveStatus = "blocked";
+        break; // Blocked takes highest priority
+      } else if (rb.status === "pending") {
+        effectiveStatus = "pending";
+        // Don't break, keep checking for "blocked"
+      }
+    }
+    
     return {
       ...biweek,
-      reservationStatus: reserved?.status || "available",
+      reservationStatus: effectiveStatus,
     };
   });
 }

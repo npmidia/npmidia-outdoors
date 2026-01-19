@@ -132,3 +132,7 @@
 
 ## Correção de Bug
 - [x] Corrigir exibição das bi-semanas em Minhas Reservas (não está aparecendo)
+
+## Bug Crítico - Bloqueio de Bi-semanas
+- [x] Bi-semanas não estão sendo bloqueadas como pendente após reserva
+- [x] Bi-semanas não estão sendo bloqueadas após aprovação da reserva

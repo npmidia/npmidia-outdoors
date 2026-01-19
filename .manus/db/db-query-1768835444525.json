@@ -1,0 +1,220 @@
+{
+  "query": "SELECT * FROM reservation_biweeks WHERE outdoorId = 30004 LIMIT 30;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4Wf91herQWe5qWy.4e2254682e8c --database cXhAG5EAB7dbX8eMQWgiMq --execute SELECT * FROM reservation_biweeks WHERE outdoorId = 30004 LIMIT 30;",
+  "rows": [
+    {
+      "id": "120002",
+      "reservationId": "120002",
+      "biweekId": "3",
+      "outdoorId": "30004",
+      "status": "available"
+    },
+    {
+      "id": "120003",
+      "reservationId": "120002",
+      "biweekId": "4",
+      "outdoorId": "30004",
+      "status": "available"
+    },
+    {
+      "id": "150001",
+      "reservationId": "150001",
+      "biweekId": "3",
+      "outdoorId": "30004",
+      "status": "available"
+    },
+    {
+      "id": "150002",
+      "reservationId": "150001",
+      "biweekId": "4",
+      "outdoorId": "30004",
+      "status": "available"
+    },
+    {
+      "id": "150003",
+      "reservationId": "150001",
+      "biweekId": "5",
+      "outdoorId": "30004",
+      "status": "available"
+    },
+    {
+      "id": "150004",
+      "reservationId": "150001",
+      "biweekId": "6",
+      "outdoorId": "30004",
+      "status": "available"
+    },
+    {
+      "id": "150005",
+      "reservationId": "150001",
+      "biweekId": "7",
+      "outdoorId": "30004",
+      "status": "available"
+    },
+    {
+      "id": "150006",
+      "reservationId": "150001",
+      "biweekId": "8",
+      "outdoorId": "30004",
+      "status": "available"
+    },
+    {
+      "id": "150007",
+      "reservationId": "150001",
+      "biweekId": "9",
+      "outdoorId": "30004",
+      "status": "available"
+    },
+    {
+      "id": "150008",
+      "reservationId": "150001",
+      "biweekId": "10",
+      "outdoorId": "30004",
+      "status": "available"
+    },
+    {
+      "id": "150009",
+      "reservationId": "150001",
+      "biweekId": "11",
+      "outdoorId": "30004",
+      "status": "available"
+    },
+    {
+      "id": "150010",
+      "reservationId": "150001",
+      "biweekId": "12",
+      "outdoorId": "30004",
+      "status": "available"
+    },
+    {
+      "id": "150011",
+      "reservationId": "150001",
+      "biweekId": "16",
+      "outdoorId": "30004",
+      "status": "available"
+    },
+    {
+      "id": "150012",
+      "reservationId": "150001",
+      "biweekId": "15",
+      "outdoorId": "30004",
+      "status": "available"
+    },
+    {
+      "id": "150013",
+      "reservationId": "150001",
+      "biweekId": "14",
+      "outdoorId": "30004",
+      "status": "available"
+    },
+    {
+      "id": "150014",
+      "reservationId": "150001",
+      "biweekId": "13",
+      "outdoorId": "30004",
+      "status": "available"
+    },
+    {
+      "id": "150015",
+      "reservationId": "150001",
+      "biweekId": "17",
+      "outdoorId": "30004",
+      "status": "available"
+    },
+    {
+      "id": "150016",
+      "reservationId": "150001",
+      "biweekId": "18",
+      "outdoorId": "30004",
+      "status": "available"
+    },
+    {
+      "id": "150017",
+      "reservationId": "150001",
+      "biweekId": "19",
+      "outdoorId": "30004",
+      "status": "available"
+    },
+    {
+      "id": "150018",
+      "reservationId": "150001",
+      "biweekId": "20",
+      "outdoorId": "30004",
+      "status": "available"
+    },
+    {
+      "id": "150019",
+      "reservationId": "150001",
+      "biweekId": "21",
+      "outdoorId": "30004",
+      "status": "available"
+    },
+    {
+      "id": "150020",
+      "reservationId": "150001",
+      "biweekId": "22",
+      "outdoorId": "30004",
+      "status": "available"
+    },
+    {
+      "id": "150021",
+      "reservationId": "150001",
+      "biweekId": "23",
+      "outdoorId": "30004",
+      "status": "available"
+    },
+    {
+      "id": "150022",
+      "reservationId": "150001",
+      "biweekId": "24",
+      "outdoorId": "30004",
+      "status": "available"
+    },
+    {
+      "id": "150023",
+      "reservationId": "150001",
+      "biweekId": "26",
+      "outdoorId": "30004",
+      "status": "available"
+    },
+    {
+      "id": "150024",
+      "reservationId": "150001",
+      "biweekId": "25",
+      "outdoorId": "30004",
+      "status": "available"
+    },
+    {
+      "id": "150025",
+      "reservationId": "150002",
+      "biweekId": "3",
+      "outdoorId": "30004",
+      "status": "available"
+    },
+    {
+      "id": "150026",
+      "reservationId": "150002",
+      "biweekId": "4",
+      "outdoorId": "30004",
+      "status": "available"
+    },
+    {
+      "id": "150027",
+      "reservationId": "150003",
+      "biweekId": "3",
+      "outdoorId": "30004",
+      "status": "available"
+    },
+    {
+      "id": "150028",
+      "reservationId": "150003",
+      "biweekId": "4",
+      "outdoorId": "30004",
+      "status": "available"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\treservationId\tbiweekId\toutdoorId\tstatus\n120002\t120002\t3\t30004\tavailable\n120003\t120002\t4\t30004\tavailable\n150001\t150001\t3\t30004\tavailable\n150002\t150001\t4\t30004\tavailable\n150003\t150001\t5\t30004\tavailable\n150004\t150001\t6\t30004\tavailable\n150005\t150001\t7\t30004\tavailable\n150006\t150001\t8\t30004\tavailable\n150007\t150001\t9\t30004\tavailable\n150008\t150001\t10\t30004\tavailable\n150009\t150001\t11\t30004\tavailable\n150010\t150001\t12\t30004\tavailable\n150011\t150001\t16\t30004\tavailable\n150012\t150001\t15\t30004\tavailable\n150013\t150001\t14\t30004\tavailable\n150014\t150001\t13\t30004\tavailable\n150015\t150001\t17\t30004\tavailable\n150016\t150001\t18\t30004\tavailable\n150017\t150001\t19\t30004\tavailable\n150018\t150001\t20\t30004\tavailable\n150019\t150001\t21\t30004\tavailable\n150020\t150001\t22\t30004\tavailable\n150021\t150001\t23\t30004\tavailable\n150022\t150001\t24\t30004\tavailable\n150023\t150001\t26\t30004\tavailable\n150024\t150001\t25\t30004\tavailable\n150025\t150002\t3\t30004\tavailable\n150026\t150002\t4\t30004\tavailable\n150027\t150003\t3\t30004\tavailable\n150028\t150003\t4\t30004\tavailable\n",
+  "stderr": "",
+  "execution_time_ms": 58
+}
