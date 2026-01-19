@@ -81,11 +81,19 @@ export default function Outdoors() {
         return false;
       }
       
+      // Check if outdoor has at least one available biweek
+      const reservedBiweeksSet = reservedBiweeksByOutdoor.get(outdoor.id) || new Set();
+      const hasAvailableBiweek = availableBiweeks.some(biweek => !reservedBiweeksSet.has(biweek.id));
+      
+      // If no available biweeks, don't show this outdoor
+      if (!hasAvailableBiweek) {
+        return false;
+      }
+      
       // Biweek availability filter - check if outdoor is available for ALL selected biweeks
       if (selectedBiweeks.length > 0) {
-        const reservedBiweeksSet = reservedBiweeksByOutdoor.get(outdoor.id);
         for (const biweekId of selectedBiweeks) {
-          if (reservedBiweeksSet && reservedBiweeksSet.has(biweekId)) {
+          if (reservedBiweeksSet.has(biweekId)) {
             return false; // This outdoor is reserved/pending for one of the selected biweeks
           }
         }
@@ -93,7 +101,7 @@ export default function Outdoors() {
       
       return true;
     });
-  }, [outdoors, searchQuery, filterWithLighting, filterWithoutLighting, selectedBiweeks, reservedBiweeksByOutdoor]);
+  }, [outdoors, searchQuery, filterWithLighting, filterWithoutLighting, selectedBiweeks, reservedBiweeksByOutdoor, availableBiweeks]);
 
   const handleReserve = (outdoorId: number) => {
     if (!isAuthenticated) {
