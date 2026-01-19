@@ -140,3 +140,6 @@
 ## Limpeza e Filtros
 - [x] Limpar registros de reservation_biweeks de reservas negadas/canceladas
 - [x] Adicionar filtro por status da arte na lista de reservas do admin
+
+## Bug - Filtro de Outdoors Disponíveis
+- [x] Corrigir filtro para exibir apenas outdoors com bi-semanas disponíveis (não reservadas/pendentes)
