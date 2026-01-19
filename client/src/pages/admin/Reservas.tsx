@@ -18,7 +18,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { trpc } from "@/lib/trpc";
-import { Calendar, CheckCircle, XCircle, Clock, AlertCircle, User, Eye, Search } from "lucide-react";
+import { Calendar, CheckCircle, XCircle, Clock, AlertCircle, User, Eye, Search, Palette } from "lucide-react";
 import { useState, useMemo } from "react";
 import { useLocation } from "wouter";
 import { Input } from "@/components/ui/input";
@@ -27,6 +27,7 @@ import { toast } from "sonner";
 export default function AdminReservas() {
   const [, navigate] = useLocation();
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [artStatusFilter, setArtStatusFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [clientFilter, setClientFilter] = useState<number | null>(null);
 
@@ -74,6 +75,11 @@ export default function AdminReservas() {
       filtered = filtered.filter(r => r.userId === clientFilter);
     }
     
+    // Filter by art status
+    if (artStatusFilter !== "all") {
+      filtered = filtered.filter(r => r.artStatus === artStatusFilter);
+    }
+    
     // Filter by search query
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
@@ -86,7 +92,7 @@ export default function AdminReservas() {
     }
     
     return filtered;
-  }, [reservationsWithDetails, statusFilter, clientFilter, searchQuery]);
+  }, [reservationsWithDetails, statusFilter, artStatusFilter, clientFilter, searchQuery]);
   
   // Get unique clients for filter
   const uniqueClients = useMemo(() => {
@@ -115,6 +121,41 @@ export default function AdminReservas() {
       hour: '2-digit',
       minute: '2-digit',
     });
+  };
+
+  const getArtStatusBadge = (status: string | null) => {
+    switch (status) {
+      case "waiting":
+        return (
+          <Badge variant="outline" className="bg-gray-50 text-gray-600 border-gray-200 text-xs">
+            Aguardando
+          </Badge>
+        );
+      case "received":
+        return (
+          <Badge variant="outline" className="bg-blue-50 text-blue-600 border-blue-200 text-xs">
+            Recebida
+          </Badge>
+        );
+      case "approved":
+        return (
+          <Badge variant="outline" className="bg-green-50 text-green-600 border-green-200 text-xs">
+            Aprovada
+          </Badge>
+        );
+      case "in_production":
+        return (
+          <Badge variant="outline" className="bg-purple-50 text-purple-600 border-purple-200 text-xs">
+            Em Produção
+          </Badge>
+        );
+      default:
+        return (
+          <Badge variant="outline" className="bg-gray-50 text-gray-400 border-gray-200 text-xs">
+            -
+          </Badge>
+        );
+    }
   };
 
   const getStatusBadge = (status: string) => {
@@ -197,7 +238,20 @@ export default function AdminReservas() {
                   <SelectItem value="cancelled">Cancelados</SelectItem>
                 </SelectContent>
               </Select>
-              {(searchQuery || clientFilter || statusFilter !== "all") && (
+              <Select value={artStatusFilter} onValueChange={setArtStatusFilter}>
+                <SelectTrigger className="w-44">
+                  <Palette className="h-4 w-4 mr-2" />
+                  <SelectValue placeholder="Status da Arte" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas as artes</SelectItem>
+                  <SelectItem value="waiting">Aguardando</SelectItem>
+                  <SelectItem value="received">Recebida</SelectItem>
+                  <SelectItem value="approved">Aprovada</SelectItem>
+                  <SelectItem value="in_production">Em Produção</SelectItem>
+                </SelectContent>
+              </Select>
+              {(searchQuery || clientFilter || statusFilter !== "all" || artStatusFilter !== "all") && (
                 <Button 
                   variant="ghost" 
                   size="sm"
@@ -205,6 +259,7 @@ export default function AdminReservas() {
                     setSearchQuery("");
                     setClientFilter(null);
                     setStatusFilter("all");
+                    setArtStatusFilter("all");
                   }}
                 >
                   Limpar filtros
@@ -225,6 +280,7 @@ export default function AdminReservas() {
                   <TableHead>Cliente</TableHead>
                   <TableHead>Outdoor</TableHead>
                   <TableHead>Serviços</TableHead>
+                  <TableHead>Arte</TableHead>
                   <TableHead>Valor</TableHead>
                   <TableHead>Data</TableHead>
                   <TableHead>Status</TableHead>
@@ -263,6 +319,9 @@ export default function AdminReservas() {
                           <span className="text-muted-foreground text-sm">-</span>
                         )}
                       </div>
+                    </TableCell>
+                    <TableCell>
+                      {getArtStatusBadge(reservation.artStatus)}
                     </TableCell>
                     <TableCell className="font-semibold text-primary">
                       {formatPrice(reservation.totalValue)}

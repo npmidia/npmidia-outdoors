@@ -136,3 +136,7 @@
 ## Bug Crítico - Bloqueio de Bi-semanas
 - [x] Bi-semanas não estão sendo bloqueadas como pendente após reserva
 - [x] Bi-semanas não estão sendo bloqueadas após aprovação da reserva
+
+## Limpeza e Filtros
+- [x] Limpar registros de reservation_biweeks de reservas negadas/canceladas
+- [x] Adicionar filtro por status da arte na lista de reservas do admin

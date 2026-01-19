@@ -1,0 +1,9 @@
+{
+  "query": "DELETE rb FROM reservation_biweeks rb\nINNER JOIN reservations r ON rb.reservationId = r.id\nWHERE r.status IN ('denied', 'cancelled');",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4Wf91herQWe5qWy.4e2254682e8c --database cXhAG5EAB7dbX8eMQWgiMq --execute DELETE rb FROM reservation_biweeks rb\nINNER JOIN reservations r ON rb.reservationId = r.id\nWHERE r.status IN ('denied', 'cancelled');",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 62
+}

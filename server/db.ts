@@ -366,8 +366,8 @@ export async function updateReservationStatus(id: number, status: "pending" | "a
       .set({ status: "blocked" })
       .where(eq(reservationBiweeks.reservationId, id));
   } else if (status === "denied" || status === "cancelled") {
-    await db.update(reservationBiweeks)
-      .set({ status: "available" })
+    // Delete reservation_biweeks records to free up the biweeks
+    await db.delete(reservationBiweeks)
       .where(eq(reservationBiweeks.reservationId, id));
   }
 }
