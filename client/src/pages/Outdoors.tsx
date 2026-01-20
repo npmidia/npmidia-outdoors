@@ -451,26 +451,33 @@ function OutdoorCard({ outdoor, isFavorite, isAuthenticated, onReserve }: Outdoo
         )}
       </div>
 
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between gap-2 mb-2">
-          <h3 className="font-bold text-lg text-foreground">{outdoor.code}</h3>
-          <span className="text-sm font-semibold text-primary whitespace-nowrap">
-            {formatPrice(outdoor.pricePerBiweek)}/bi-semana
-          </span>
+      <CardContent className="p-4 space-y-3">
+        <div>
+          <h3 className="font-bold text-lg text-foreground leading-tight">{outdoor.code}</h3>
         </div>
         
-        <div className="flex items-center gap-1 text-muted-foreground text-sm mb-2">
-          <MapPin className="h-4 w-4 flex-shrink-0" />
-          <span className="truncate">
-            {outdoor.neighborhood ? `${outdoor.neighborhood}, ` : ""}{outdoor.city}
-          </span>
+        <div className="flex items-start gap-2">
+          <MapPin className="h-4 w-4 flex-shrink-0 text-muted-foreground mt-0.5" />
+          <div className="text-sm text-muted-foreground">
+            <p className="font-medium text-foreground">{outdoor.city}</p>
+            {outdoor.neighborhood && (
+              <p className="text-xs">{outdoor.neighborhood}</p>
+            )}
+          </div>
         </div>
-
+        
         {outdoor.width && outdoor.height && (
           <p className="text-xs text-muted-foreground">
             Tamanho: {outdoor.width}m x {outdoor.height}m
           </p>
         )}
+        
+        <div className="pt-2 border-t border-border">
+          <span className="text-lg font-bold text-primary">
+            {formatPrice(outdoor.pricePerBiweek)}
+          </span>
+          <span className="text-xs text-muted-foreground ml-1">/bi-semana</span>
+        </div>
       </CardContent>
 
       <CardFooter className="p-4 pt-0">

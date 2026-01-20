@@ -143,3 +143,6 @@
 
 ## Bug - Filtro de Outdoors Disponíveis
 - [x] Corrigir filtro para exibir apenas outdoors com bi-semanas disponíveis (não reservadas/pendentes)
+
+## Melhorias de Layout
+- [x] Refatorar cards de outdoor com layout em coluna (imagem, código, endereço, preço)
